@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sentinel Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Load Supabase JS -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <!-- Load auth.js FIRST -->
     <script src="auth.js"></script>
 </head>
 <body>
@@ -28,12 +26,11 @@
         </main>
     </div>
 
-    <!-- Initialize after auth.js is loaded -->
     <script>
         // Initialize Supabase client
         window.supabase = supabase.createClient(
             'https://doptbjwopxncfqadbwie.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvcHRiandvcHhuY2ZxYWRid2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNTk2MDcsImV4cCI6MjA2NjYzNTYwN30.bAa2UFhRYYWkCpZ84Fl2_sZiN2PKkL5m4GxnFkGeCBk', // From Supabase Settings → API
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvcHRiandvcHhuY2ZxYWRid2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNTk2MDcsImV4cCI6MjA2NjYzNTYwN30.bAa2UFhRYYWkCpZ84Fl2_sZiN2PKkL5m4GxnFkGeCBk',
             {
                 auth: {
                     flowType: 'pkce',
@@ -43,9 +40,17 @@
             }
         );
 
-        // Start auth check after initialization
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
+        // Check auth status and redirect if needed
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session }, error } = await window.supabase.auth.getSession();
+            
+            if (session) {
+                // User is authenticated - show dashboard
+                checkAuth();
+            } else {
+                // No session - redirect immediately to login
+                window.location.href = 'auth.html';
+            }
         });
     </script>
 </body>
