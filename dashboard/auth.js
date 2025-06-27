@@ -10,17 +10,13 @@ function checkAuth() {
             if (session) {
                 showDashboard(session.user);
             } else {
-                const urlParams = new URLSearchParams(window.location.search);
-                if (urlParams.has('code')) {
-                    handleOAuthCallback();
-                } else {
-                    showLogin();
-                }
+                // If we get here, it means we have no session but weren't redirected
+                window.location.href = 'auth.html';
             }
         })
         .catch(error => {
             console.error('Auth check failed:', error);
-            showLogin(error.message);
+            window.location.href = 'auth.html';
         });
 }
 
@@ -29,30 +25,16 @@ async function handleOAuthCallback() {
         const { data: { session }, error } = await window.supabase.auth.getSession();
         if (error) throw error;
         
-        window.history.replaceState({}, '', window.location.pathname);
-        showDashboard(session.user);
+        if (session) {
+            window.history.replaceState({}, '', window.location.pathname);
+            showDashboard(session.user);
+        } else {
+            window.location.href = 'auth.html';
+        }
     } catch (error) {
         console.error('OAuth failed:', error);
-        showLogin(error.message);
+        window.location.href = 'auth.html';
     }
-}
-
-function showLogin(error = '') {
-    document.getElementById('auth-state').innerHTML = `
-        <a href="auth.html" class="login-btn">
-            <i class="fab fa-discord"></i> Login
-        </a>
-    `;
-
-    document.getElementById('main-content').innerHTML = `
-        <div class="login-container">
-            <h2>Welcome to Sentinel</h2>
-            ${error ? `<p class="error">${error}</p>` : ''}
-            <a href="auth.html" class="login-btn main-login">
-                <i class="fab fa-discord"></i> Login with Discord
-            </a>
-        </div>
-    `;
 }
 
 function showDashboard(user) {
@@ -63,7 +45,7 @@ function showDashboard(user) {
 
     document.getElementById('logout-btn').addEventListener('click', () => {
         window.supabase.auth.signOut()
-            .then(() => window.location.reload());
+            .then(() => window.location.href = 'auth.html');
     });
 
     document.getElementById('main-content').innerHTML = `
