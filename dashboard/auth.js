@@ -14,40 +14,14 @@ function checkAuth() {
                 if (urlParams.has('code')) {
                     handleOAuthCallback();
                 } else {
-                    // Automatically redirect to OAuth
-                    redirectToOAuth();
+                    showLogin();
                 }
             }
         })
         .catch(error => {
             console.error('Auth check failed:', error);
-            redirectToOAuth();
+            showLogin(error.message);
         });
-}
-
-async function redirectToOAuth() {
-    try {
-        const { error } = await window.supabase.auth.signInWithOAuth({
-            provider: 'discord',
-            options: {
-                redirectTo: window.location.origin + window.location.pathname
-            }
-        });
-        
-        if (error) throw error;
-    } catch (error) {
-        console.error('OAuth redirect failed:', error);
-        // Fallback to showing error message
-        document.getElementById('main-content').innerHTML = `
-            <div class="login-container">
-                <h2>Welcome to Sentinel</h2>
-                <p class="error">Login failed: ${error.message}</p>
-                <a href="#" onclick="redirectToOAuth()" class="login-btn main-login">
-                    <i class="fab fa-discord"></i> Retry Login
-                </a>
-            </div>
-        `;
-    }
 }
 
 async function handleOAuthCallback() {
@@ -59,8 +33,26 @@ async function handleOAuthCallback() {
         showDashboard(session.user);
     } catch (error) {
         console.error('OAuth failed:', error);
-        redirectToOAuth();
+        showLogin(error.message);
     }
+}
+
+function showLogin(error = '') {
+    document.getElementById('auth-state').innerHTML = `
+        <a href="auth.html" class="login-btn">
+            <i class="fab fa-discord"></i> Login
+        </a>
+    `;
+
+    document.getElementById('main-content').innerHTML = `
+        <div class="login-container">
+            <h2>Welcome to Sentinel</h2>
+            ${error ? `<p class="error">${error}</p>` : ''}
+            <a href="auth.html" class="login-btn main-login">
+                <i class="fab fa-discord"></i> Login with Discord
+            </a>
+        </div>
+    `;
 }
 
 function showDashboard(user) {
