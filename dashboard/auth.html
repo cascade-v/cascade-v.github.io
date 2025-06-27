@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Login | Sentinel</title>
+    <style>
+        body { 
+            background: #1a1d21;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .spinner {
+            border: 5px solid rgba(74, 108, 247, 0.2);
+            border-top: 5px solid #4a6cf7;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error-box {
+            background: #ffebee;
+            color: #b71c1c;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <h2>Redirecting to Discord...</h2>
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Load Supabase FIRST -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <script>
+        // Fix initialization with immediate function execution
+        (function() {
+            // 1. Initialize Supabase FIRST
+            const client = supabase.createClient(
+                'https://doptbjwopxncfqadbwie.supabase.co',
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvcHRiandvcHhuY2ZxYWRid2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNTk2MDcsImV4cCI6MjA2NjYzNTYwN30.bAa2UFhRYYWkCpZ84Fl2_sZiN2PKkL5m4GxnFkGeCBk', // From Supabase Settings → API
+                {
+                    auth: {
+                        flowType: 'pkce',
+                        autoRefreshToken: true,
+                        detectSessionInUrl: true
+                    }
+                }
+            );
+
+            // 2. Start OAuth flow AFTER initialization
+            client.auth.signInWithOAuth({
+                provider: 'discord',
+                options: { 
+                    redirectTo: 'https://sentinelbot.dev/dashboard/index.html',
+                    scopes: 'identify guilds'
+                }
+            }).then(({ data, error }) => {
+                if (error) {
+                    throw error;
+                }
+                window.location.href = data.url;
+            }).catch(error => {
+                console.error('OAuth failed:', error);
+                document.getElementById('app').innerHTML = `
+                    <div class="error-box">
+                        <h2>Login Failed</h2>
+                        <p>${error.message}</p>
+                        <button onclick="window.location.href='index.html'">
+                            Return to Dashboard
+                        </button>
+                    </div>
+                `;
+            });
+        })();
+    </script>
+</body>
+</html>

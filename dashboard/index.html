@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Load Supabase JS -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <!-- Load auth.js FIRST -->
+    <script src="auth.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Sentinel</h1>
+            </div>
+            <div id="auth-state"></div>
+        </header>
+
+        <main id="main-content">
+            <div class="loader">
+                <div class="spinner"></div>
+                <p>Loading dashboard...</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Initialize after auth.js is loaded -->
+    <script>
+        // Initialize Supabase client
+        window.supabase = supabase.createClient(
+            'https://doptbjwopxncfqadbwie.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvcHRiandvcHhuY2ZxYWRid2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNTk2MDcsImV4cCI6MjA2NjYzNTYwN30.bAa2UFhRYYWkCpZ84Fl2_sZiN2PKkL5m4GxnFkGeCBk', // From Supabase Settings → API
+            {
+                auth: {
+                    flowType: 'pkce',
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true
+                }
+            }
+        );
+
+        // Start auth check after initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+        });
+    </script>
+</body>
+</html>
