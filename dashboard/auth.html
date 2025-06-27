@@ -3,58 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Login | Sentinel</title>
+    <title>Authenticating | Sentinel</title>
     <style>
-        body { 
-            background: #1a1d21;
-            color: white;
+        :root {
+            --primary: #4a6cf7;
+            --primary-dark: #3a5ae0;
+            --primary-light: #5d7df8;
+            --secondary: #1e2227;
+            --dark: #1a1d21;
+            --darker: #15181c;
+            --text: #eef1f5;
+            --text-muted: #a1a8b3;
+            --success: #4d7cff;
+            --border-radius: 12px;
+            --transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        body {
+            background: linear-gradient(135deg, #0d0f12 0%, #14171b 100%);
+            color: var(--text);
             font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             margin: 0;
+            overflow: hidden;
+        }
+
+        .auth-container {
             text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            background: rgba(22, 25, 29, 0.8);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            transform: translateY(0);
+            opacity: 1;
+            transition: var(--transition);
         }
-        .spinner {
-            border: 5px solid rgba(74, 108, 247, 0.2);
-            border-top: 5px solid #4a6cf7;
+
+        .logo {
+            background: rgba(74, 108, 247, 0.15);
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(74, 108, 247, 0.2);
+            margin: 0 auto 30px;
+            animation: pulse 2s infinite ease-in-out;
+        }
+
+        .logo i {
+            font-size: 40px;
+            color: var(--primary);
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+
+        .dot {
+            width: 14px;
+            height: 14px;
+            background: var(--primary);
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
+            opacity: 0.6;
+            animation: bounce 1.4s infinite ease-in-out;
         }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+
+        .dot:nth-child(1) { animation-delay: 0s; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
         }
-        .error-box {
-            background: #ffebee;
-            color: #b71c1c;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 400px;
-            margin: 0 auto;
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); opacity: 0.6; }
+            40% { transform: translateY(-12px); opacity: 1; }
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: 20px;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .error-message {
+            display: none;
+            color: #ff6b6b;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: var(--border-radius);
+            background: rgba(255, 0, 0, 0.1);
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 </head>
 <body>
-    <div id="app">
-        <h2>Redirecting to Discord...</h2>
-        <div class="spinner"></div>
+    <div class="auth-container">
+        <div class="logo">
+            <i class="fas fa-shield-alt"></i>
+        </div>
+        
+        <h1>Connecting to Discord</h1>
+        
+        <div class="loading-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        
+        <div class="status">
+            <div class="status-dot"></div>
+            <span>Initializing secure connection...</span>
+        </div>
+        
+        <div class="error-message" id="error-message"></div>
     </div>
 
-    <!-- Load Supabase FIRST -->
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    
     <script>
-        // Fix initialization with immediate function execution
-        (function() {
-            // 1. Initialize Supabase FIRST
-            const client = supabase.createClient(
+        document.addEventListener('DOMContentLoaded', () => {
+            const supabase = supabase.createClient(
                 'https://doptbjwopxncfqadbwie.supabase.co',
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvcHRiandvcHhuY2ZxYWRid2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNTk2MDcsImV4cCI6MjA2NjYzNTYwN30.bAa2UFhRYYWkCpZ84Fl2_sZiN2PKkL5m4GxnFkGeCBk', // From Supabase Settings → API
+                'your-anon-key-here',
                 {
                     auth: {
                         flowType: 'pkce',
@@ -64,31 +169,61 @@
                 }
             );
 
-            // 2. Start OAuth flow AFTER initialization
-            client.auth.signInWithOAuth({
+            // Update status message dynamically
+            const statusEl = document.querySelector('.status span');
+            const messages = [
+                "Authenticating with Discord...",
+                "Securing your session...",
+                "Almost there..."
+            ];
+            
+            let messageIndex = 0;
+            const messageInterval = setInterval(() => {
+                statusEl.textContent = messages[messageIndex % messages.length];
+                messageIndex++;
+            }, 2000);
+
+            // Start OAuth flow
+            supabase.auth.signInWithOAuth({
                 provider: 'discord',
-                options: { 
-                    redirectTo: 'https://sentinelbot.dev/dashboard/index.html',
-                    scopes: 'identify guilds'
+                options: {
+                    redirectTo: window.location.origin + '/dashboard/index.html'
                 }
             }).then(({ data, error }) => {
+                clearInterval(messageInterval);
                 if (error) {
-                    throw error;
+                    showError(error.message);
+                    return;
                 }
                 window.location.href = data.url;
             }).catch(error => {
-                console.error('OAuth failed:', error);
-                document.getElementById('app').innerHTML = `
-                    <div class="error-box">
-                        <h2>Login Failed</h2>
-                        <p>${error.message}</p>
-                        <button onclick="window.location.href='index.html'">
-                            Return to Dashboard
-                        </button>
-                    </div>
-                `;
+                clearInterval(messageInterval);
+                showError(error.message);
             });
-        })();
+
+            function showError(message) {
+                const errorEl = document.getElementById('error-message');
+                errorEl.textContent = message || 'Authentication failed';
+                errorEl.style.display = 'block';
+                document.querySelector('.status').style.display = 'none';
+                document.querySelector('.loading-dots').style.display = 'none';
+                
+                // Add retry button
+                const retryBtn = document.createElement('button');
+                retryBtn.textContent = 'Try Again';
+                retryBtn.style.marginTop = '20px';
+                retryBtn.style.padding = '10px 20px';
+                retryBtn.style.background = 'var(--primary)';
+                retryBtn.style.color = 'white';
+                retryBtn.style.border = 'none';
+                retryBtn.style.borderRadius = 'var(--border-radius)';
+                retryBtn.style.cursor = 'pointer';
+                retryBtn.style.transition = 'var(--transition)';
+                retryBtn.onclick = () => window.location.reload();
+                
+                errorEl.after(retryBtn);
+            }
+        });
     </script>
 </body>
 </html>
