@@ -90,16 +90,15 @@ async function displayOwnedServers(user) {
   
   try {
     // Show loading state
-  serversContainer.innerHTML = `
-    <div class="glass-loading">
-      <div class="spinner"></div>
-      <p>Loading servers...</p>
-    </div>
-  `;
+    serversContainer.classList.add('loading');
+    serversContainer.innerHTML = `
+      <div class="glass-loading">
+        <div class="spinner"></div>
+        <p>Loading servers...</p>
+      </div>
+    `;
 
-
-
-    // 1. Get user's guilds
+    // 1. Get user's guilds from Discord API
     const { data: userGuilds, error: discordError } = await fetchDiscordGuilds();
     if (discordError) throw discordError;
 
@@ -110,7 +109,7 @@ async function displayOwnedServers(user) {
     
     if (supabaseError) throw supabaseError;
 
-    // 3. Filter servers
+    // 3. Filter servers (user must be admin/owner and bot must be in server)
     const botGuildIds = new Set(botGuilds.map(g => g.guild_id));
     
     const validServers = userGuilds.filter(guild => {
@@ -125,25 +124,43 @@ async function displayOwnedServers(user) {
           <i class="fas fa-robot"></i>
           <h3>No Managed Servers Found</h3>
           <p>Your bot isn't in any servers you administer</p>
-          <a href="https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID&scope=bot" class="invite-btn">
-            Add Bot to Server
+          <a href="https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID&scope=bot" 
+             class="btn btn-primary" 
+             target="_blank">
+            <i class="fas fa-plus"></i> Add Bot to Server
           </a>
         </div>
       `;
       return;
     }
 
-    serversContainer.innerHTML = validServers.map(guild => `
-      <div class="server-card">
-        <div class="server-icon">
-          ${guild.icon 
-            ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=128" alt="${guild.name}">`
-            : `<div class="default-icon">${guild.name.charAt(0)}</div>`
-          }
-        </div>
-        <h3>${guild.name}</h3>
+    serversContainer.innerHTML = `
+      <div class="servers-grid">
+        ${validServers.map(guild => `
+          <div class="server-card" data-guild-id="${guild.id}">
+            <div class="server-icon">
+              ${guild.icon 
+                ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=128" 
+                      alt="${guild.name}" 
+                      loading="lazy">`
+                : `<div class="default-icon">${guild.name.charAt(0)}</div>`
+              }
+            </div>
+            <div class="server-info">
+              <h3 class="server-name">${guild.name}</h3>
+              <div class="server-meta">
+                <span><i class="fas fa-crown"></i> ${guild.owner ? 'Owner' : 'Admin'}</span>
+              </div>
+            </div>
+            <div class="server-actions">
+              <button class="btn btn-primary" onclick="manageServer('${guild.id}')">
+                <i class="fas fa-cog"></i> Manage
+              </button>
+            </div>
+          </div>
+        `).join('')}
       </div>
-    `).join('');
+    `;
 
   } catch (error) {
     console.error('Server load failed:', error);
@@ -151,9 +168,13 @@ async function displayOwnedServers(user) {
       <div class="error-message">
         <i class="fas fa-exclamation-triangle"></i>
         <h3>Error Loading Servers</h3>
-        <p>${error.message}</p>
-        <button onclick="window.location.reload()">Try Again</button>
+        <p>${error.message || 'Failed to fetch server data'}</p>
+        <button class="btn btn-secondary" onclick="window.location.reload()">
+          <i class="fas fa-sync-alt"></i> Try Again
+        </button>
       </div>
     `;
+  } finally {
+    serversContainer.classList.remove('loading');
   }
 }
