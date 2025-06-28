@@ -129,3 +129,32 @@ main {
     background: #4752c4;
     transform: translateY(-2px);
 }
+
+/* Add to dashboard/style.css */
+.coming-soon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70vh;
+}
+
+.gradient-text {
+    font-size: 3.5rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, 
+        #4a6cf7, 
+        #3a5ae0, 
+        #5d7df8, 
+        #4a6cf7);
+    background-size: 300% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient-move 3s linear infinite;
+    text-align: center;
+}
+
+@keyframes gradient-move {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 300% 50%; }
+}
