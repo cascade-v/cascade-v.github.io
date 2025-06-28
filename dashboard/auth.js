@@ -90,14 +90,12 @@ async function displayOwnedServers(user) {
   
   try {
     // Show loading state
-    serversContainer.innerHTML = `
-      <div class="loading-overlay">
-        <div class="loading-content">
-          <div class="spinner"></div>
-          <p>Loading servers...</p>
-        </div>
-      </div>
-    `;
+serversContainer.innerHTML = `
+  <div class="glass-loading">
+    <div class="spinner"></div>
+    <p>Loading servers...</p>
+  </div>
+`;
 
     // 1. Get user's guilds
     const { data: userGuilds, error: discordError } = await fetchDiscordGuilds();
