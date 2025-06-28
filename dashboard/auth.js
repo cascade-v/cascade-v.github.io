@@ -91,9 +91,11 @@ async function displayOwnedServers(user) {
   try {
     // Show loading state
     serversContainer.innerHTML = `
-      <div class="loading-spinner">
-        <div class="spinner"></div>
-        <p>Loading your servers...</p>
+      <div class="loading-overlay">
+        <div class="loading-content">
+          <div class="spinner"></div>
+          <p>Loading servers...</p>
+        </div>
       </div>
     `;
 
