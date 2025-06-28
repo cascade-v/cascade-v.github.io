@@ -49,15 +49,8 @@ function showDashboard(user) {
     });
 
     document.getElementById('main-content').innerHTML = `
-        <div class="dashboard">
-            <h2>Your Server Dashboard</h2>
-            <div class="server-list">
-                <div class="server-card">
-                    <i class="fas fa-server"></i>
-                    <h3>Your Server</h3>
-                    <button class="manage-btn">Manage</button>
-                </div>
-            </div>
+        <div class="coming-soon-container">
+            <h1 class="gradient-text">Coming soon...</h1>
         </div>
     `;
 }
