@@ -272,64 +272,69 @@ header {
 /* =============== */
 /* LOADING STATES  */
 /* =============== */
+
 /* =============== */
 /* LOADING STATES  */
 /* =============== */
-/* =============== */
-/* LOADING STATES  */
-/* =============== */
+.server-loading-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
 .glass-loading {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    z-index: 10;
-    width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 11;
 }
 
 .glass-loading .spinner {
-    border: 3px solid rgba(74, 108, 247, 0.1);
-    border-top: 3px solid #4a6cf7;
-    border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    animation: spin 0.8s linear infinite;
+  border: 3px solid rgba(74, 108, 247, 0.1);
+  border-top: 3px solid #4a6cf7;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 0.8s linear infinite;
 }
 
 .glass-loading p {
-    margin: 0;
-    color: #eef1f5;
-    font-size: 0.95rem;
-    font-weight: 500;
-    letter-spacing: 0.3px;
+  margin: 0;
+  color: #eef1f5;
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.3px;
 }
 
-/* Blur effect for container */
-#owned-servers.loading {
-    position: relative;
-    min-height: 200px;
+/* Blur effect */
+.servers-grid.loading {
+  position: relative;
+  min-height: 300px;
 }
 
-#owned-servers.loading::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    backdrop-filter: blur(2px);
-    z-index: 1;
-    pointer-events: none;
+.servers-grid.loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(4px);
+  z-index: 1;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
+
 
 /* =============== */
 /* RESPONSIVE      */
