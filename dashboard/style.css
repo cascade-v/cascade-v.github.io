@@ -31,17 +31,6 @@ header {
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 24px;
-}
-
-.logo i {
-    color: var(--primary);
-    font-size: 28px;
-}
 
 main {
     padding: 40px 0;
@@ -216,4 +205,37 @@ main {
     grid-column: 1 / -1;
     text-align: center;
     padding: 40px 0;
+}
+
+.no-bot-servers {
+  text-align: center;
+  padding: 40px;
+  background: #2f3136;
+  border-radius: 8px;
+}
+
+.no-bot-servers i {
+  font-size: 3rem;
+  color: #747f8d;
+  margin-bottom: 20px;
+}
+
+.no-bot-servers button {
+  background: #4a6cf7;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.manage-btn {
+  background: #4a6cf7;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
 }
