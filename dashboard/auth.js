@@ -140,9 +140,6 @@ serversContainer.innerHTML = `
           }
         </div>
         <h3>${guild.name}</h3>
-        <button onclick="window.location.href='/dashboard?guild=${guild.id}'">
-          <i class="fas fa-cog"></i> Manage
-        </button>
       </div>
     `).join('');
 
