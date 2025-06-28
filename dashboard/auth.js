@@ -38,6 +38,10 @@ async function handleOAuthCallback() {
 }
 
 function showDashboard(user) {
+    // Hide the entire header
+    document.querySelector('header').style.display = 'none';
+    
+    // Replace the main content with a centered "Coming soon..." message
     document.getElementById('main-content').innerHTML = `
         <div class="coming-soon-container">
             <h1 class="gradient-text">Coming soon...</h1>
