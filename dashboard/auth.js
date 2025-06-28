@@ -38,16 +38,6 @@ async function handleOAuthCallback() {
 }
 
 function showDashboard(user) {
-    document.getElementById('auth-state').innerHTML = `
-        <span>Hi, ${user.user_metadata.full_name || 'Admin'}!</span>
-        <button id="logout-btn">Logout</button>
-    `;
-
-    document.getElementById('logout-btn').addEventListener('click', () => {
-        window.supabase.auth.signOut()
-            .then(() => window.location.href = 'auth.html');
-    });
-
     document.getElementById('main-content').innerHTML = `
         <div class="coming-soon-container">
             <h1 class="gradient-text">Coming soon...</h1>
