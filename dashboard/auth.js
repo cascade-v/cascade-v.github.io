@@ -89,12 +89,14 @@ async function displayOwnedServers(user) {
   const serversContainer = document.getElementById('owned-servers');
   
   try {
-    // Show loading state
-    serversContainer.classList.add('loading');
+    // Show loading state with blur
     serversContainer.innerHTML = `
-      <div class="glass-loading">
-        <div class="spinner"></div>
-        <p>Loading servers...</p>
+      <div class="servers-loading-container">
+        <div class="servers-loading-blur"></div>
+        <div class="servers-loading-content">
+          <div class="spinner"></div>
+          <p>Loading servers...</p>
+        </div>
       </div>
     `;
 
@@ -134,6 +136,7 @@ async function displayOwnedServers(user) {
       return;
     }
 
+    // Render server cards
     serversContainer.innerHTML = `
       <div class="servers-grid">
         ${validServers.map(guild => `
@@ -174,7 +177,5 @@ async function displayOwnedServers(user) {
         </button>
       </div>
     `;
-  } finally {
-    serversContainer.classList.remove('loading');
   }
 }
