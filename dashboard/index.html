@@ -9,6 +9,23 @@
     <script src="auth.js"></script>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Sentinel</h1>
+            </div>
+            <div id="auth-state"></div>
+        </header>
+
+        <main id="main-content">
+            <div class="loader">
+                <div class="spinner"></div>
+                <p>Loading dashboard...</p>
+            </div>
+        </main>
+    </div>
+
     <script>
         // Initialize Supabase client
         window.supabase = supabase.createClient(
