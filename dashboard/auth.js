@@ -90,7 +90,7 @@ async function displayOwnedServers(user) {
         <div class="no-bot-servers">
           <i class="fas fa-robot"></i>
           <p>Your bot isn't in any of your servers</p>
-          <button onclick="window.location.href='https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID&scope=bot'">
+          <button onclick="window.location.href='https://discord.com/oauth2/authorize?client_id=1388167308358189136&permissions=8&integration_type=0&scope=bot'">
             Add Bot to Server
           </button>
         </div>
