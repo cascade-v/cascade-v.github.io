@@ -58,41 +58,74 @@ async function showDashboard(user) {
     }
 }
 
-async function displayOwnedServers(user) {
+async function fetchDiscordGuilds() {
   try {
-    // 1. Get user's owned servers from Discord API
+    // Get the user's Discord access token from Supabase
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+    
+    if (!session?.provider_token) {
+      throw new Error('No Discord access token found');
+    }
+
+    // Fetch user's guilds from Discord API
+    const response = await fetch('https://discord.com/api/users/@me/guilds', {
+      headers: {
+        'Authorization': `Bearer ${session.provider_token}`
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Discord API error: ${response.status}`);
+    }
+
+    return { data: await response.json(), error: null };
+  } catch (error) {
+    return { data: null, error };
+  }
+}
+
+async function displayOwnedServers(user) {
+  const serversContainer = document.getElementById('owned-servers');
+  
+  try {
+    // Show loading state
+    serversContainer.innerHTML = `
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Loading your servers...</p>
+      </div>
+    `;
+
+    // 1. Get user's guilds
     const { data: userGuilds, error: discordError } = await fetchDiscordGuilds();
     if (discordError) throw discordError;
 
-    // 2. Get servers where bot exists from Supabase
+    // 2. Get bot's guilds from Supabase
     const { data: botGuilds, error: supabaseError } = await supabase
       .from('bot_guilds')
       .select('guild_id');
     
     if (supabaseError) throw supabaseError;
 
-    // 3. Create Set for quick lookup
+    // 3. Filter servers
     const botGuildIds = new Set(botGuilds.map(g => g.guild_id));
-
-    // 4. Filter to only show servers where:
-    //    - User has admin/owner permissions
-    //    - Bot is present
+    
     const validServers = userGuilds.filter(guild => {
-      const hasPermissions = guild.owner || (BigInt(guild.permissions) & BigInt(0x8));
-      return hasPermissions && botGuildIds.has(guild.id);
+      const hasAdmin = guild.owner || (BigInt(guild.permissions) & BigInt(0x8));
+      return hasAdmin && botGuildIds.has(guild.id);
     });
 
-    // 5. Render only valid servers
-    const serversContainer = document.getElementById('owned-servers');
-    
+    // 4. Render results
     if (validServers.length === 0) {
       serversContainer.innerHTML = `
-        <div class="no-bot-servers">
+        <div class="no-servers">
           <i class="fas fa-robot"></i>
-          <p>Your bot isn't in any of your servers</p>
-          <button onclick="window.location.href='https://discord.com/oauth2/authorize?client_id=1388167308358189136&permissions=8&integration_type=0&scope=bot'">
+          <h3>No Managed Servers Found</h3>
+          <p>Your bot isn't in any servers you administer</p>
+          <a href="https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID&scope=bot" class="invite-btn">
             Add Bot to Server
-          </button>
+          </a>
         </div>
       `;
       return;
@@ -100,12 +133,14 @@ async function displayOwnedServers(user) {
 
     serversContainer.innerHTML = validServers.map(guild => `
       <div class="server-card">
-        ${guild.icon 
-          ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=128" alt="${guild.name}">`
-          : `<div class="default-icon">${guild.name.charAt(0)}</div>`
-        }
+        <div class="server-icon">
+          ${guild.icon 
+            ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=128" alt="${guild.name}">`
+            : `<div class="default-icon">${guild.name.charAt(0)}</div>`
+          }
+        </div>
         <h3>${guild.name}</h3>
-        <button class="manage-btn" data-guild-id="${guild.id}">
+        <button onclick="window.location.href='/dashboard?guild=${guild.id}'">
           <i class="fas fa-cog"></i> Manage
         </button>
       </div>
@@ -113,10 +148,12 @@ async function displayOwnedServers(user) {
 
   } catch (error) {
     console.error('Server load failed:', error);
-    document.getElementById('owned-servers').innerHTML = `
+    serversContainer.innerHTML = `
       <div class="error-message">
         <i class="fas fa-exclamation-triangle"></i>
+        <h3>Error Loading Servers</h3>
         <p>${error.message}</p>
+        <button onclick="window.location.reload()">Try Again</button>
       </div>
     `;
   }
