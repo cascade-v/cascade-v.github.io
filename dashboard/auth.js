@@ -87,19 +87,15 @@ async function fetchDiscordGuilds() {
 
 async function displayOwnedServers(user) {
   const serversContainer = document.getElementById('owned-servers');
+  const loadingOverlay = document.querySelector('.loading-overlay'); // Moved to top
   
   try {
-    // Show loading state with blur
-    serversContainer.innerHTML = `
-      <div class="servers-loading-container">
-        <div class="servers-loading-blur"></div>
-        <div class="servers-loading-content">
-          <div class="spinner"></div>
-          <p>Loading servers...</p>
-        </div>
-      </div>
-    `;
-
+    // Show loading overlay if it exists
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'flex';
+      loadingOverlay.style.opacity = '1';
+    }
+    
     // 1. Get user's guilds from Discord API
     const { data: userGuilds, error: discordError } = await fetchDiscordGuilds();
     if (discordError) throw discordError;
@@ -119,6 +115,14 @@ async function displayOwnedServers(user) {
       return hasAdmin && botGuildIds.has(guild.id);
     });
 
+    // Hide loading overlay
+    if (loadingOverlay) {
+      loadingOverlay.style.opacity = '0';
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 800);
+    }
+
     // 4. Render results
     if (validServers.length === 0) {
       serversContainer.innerHTML = `
@@ -127,55 +131,72 @@ async function displayOwnedServers(user) {
           <h3>No Managed Servers Found</h3>
           <p>Your bot isn't in any servers you administer</p>
           <a href="https://discord.com/oauth2/authorize?client_id=YOUR_BOT_ID&scope=bot" 
-             class="btn btn-primary" 
+             class="invite-btn" 
              target="_blank">
-            <i class="fas fa-plus"></i> Add Bot to Server
+            <i class="fab fa-discord"></i> Add Bot to Server
           </a>
         </div>
       `;
       return;
     }
 
-    // Render server cards
-    serversContainer.innerHTML = `
-      <div class="servers-grid">
-        ${validServers.map(guild => `
-          <div class="server-card" data-guild-id="${guild.id}">
+    // Render server cards with staggered animations
+    serversContainer.innerHTML = validServers.map((guild, index) => {
+      const delay = index * 0.1;
+      return `
+        <div class="server-card ${guild.owner ? 'owner' : 'admin'}" 
+             data-guild-id="${guild.id}" 
+             style="animation-delay: ${delay}s">
+          <div class="server-icon-container">
             <div class="server-icon">
-              ${guild.icon 
-                ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=128" 
-                      alt="${guild.name}" 
-                      loading="lazy">`
-                : `<div class="default-icon">${guild.name.charAt(0)}</div>`
-              }
-            </div>
-            <div class="server-info">
-              <h3 class="server-name">${guild.name}</h3>
-              <div class="server-meta">
-                <span><i class="fas fa-crown"></i> ${guild.owner ? 'Owner' : 'Admin'}</span>
+              <div class="server-icon-bg"></div>
+              <div class="server-icon-content">
+                ${guild.icon 
+                  ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=128" 
+                         alt="${guild.name}" 
+                         loading="lazy">`
+                  : guild.name.charAt(0)}
               </div>
             </div>
-            <div class="server-actions">
-              <button class="btn btn-primary" onclick="manageServer('${guild.id}')">
-                <i class="fas fa-cog"></i> Manage
-              </button>
+          </div>
+          <div class="server-info">
+            <h3 class="server-name">${guild.name}</h3>
+            <div class="server-meta">
+              <div class="server-role">
+                <i class="fas ${guild.owner ? 'fa-crown' : 'fa-shield-alt'}"></i>
+                <span>${guild.owner ? 'Owner' : 'Admin'}</span>
+              </div>
             </div>
           </div>
-        `).join('')}
-      </div>
-    `;
+        </div>
+      `;
+    }).join('');
 
   } catch (error) {
     console.error('Server load failed:', error);
-    serversContainer.innerHTML = `
-      <div class="error-message">
-        <i class="fas fa-exclamation-triangle"></i>
-        <h3>Error Loading Servers</h3>
-        <p>${error.message || 'Failed to fetch server data'}</p>
-        <button class="btn btn-secondary" onclick="window.location.reload()">
-          <i class="fas fa-sync-alt"></i> Try Again
-        </button>
-      </div>
-    `;
+    
+    // Hide loading overlay on error
+    if (loadingOverlay) {
+      loadingOverlay.style.opacity = '0';
+      setTimeout(() => {
+        loadingOverlay.style.display = 'none';
+      }, 800);
+    }
+    
+    // Ensure serversContainer exists before setting innerHTML
+    if (serversContainer) {
+      serversContainer.innerHTML = `
+        <div class="error-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Error Loading Servers</h3>
+          <p>${error.message || 'Failed to fetch server data'}</p>
+          <button class="retry-btn" onclick="window.location.reload()">
+            <i class="fas fa-sync-alt"></i> Try Again
+          </button>
+        </div>
+      `;
+    } else {
+      console.error('Servers container not found:', error);
+    }
   }
 }
