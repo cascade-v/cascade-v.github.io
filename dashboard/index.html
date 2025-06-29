@@ -422,104 +422,87 @@
             box-shadow: 0 5px 15px rgba(74, 108, 247, 0.2);
         }
 
-        /* Updated "No Managed Servers" state */
-        .no-servers-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-        }
-
-        .blur-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(15, 18, 22, 0.95);
-            backdrop-filter: blur(15px);
-            z-index: 1;
-        }
-
-        .no-servers-content {
-            position: relative;
-            z-index: 2;
+        /* Empty & Error States */
+        .no-servers, .error-message {
+            grid-column: 1 / -1;
             text-align: center;
-            max-width: 500px;
-            padding: 40px;
-            animation: fadeInUp 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 70px 40px;
+            background: var(--glass-bg);
+            border-radius: var(--border-radius);
+            border: 2px dashed var(--glass-border);
+            backdrop-filter: blur(15px);
+            max-width: 800px;
+            margin: 0 auto;
+            animation: cardAppear 0.8s forwards;
+            opacity: 0;
+            transform: translateY(30px);
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .no-servers-icon {
+        .no-servers i {
             font-size: 4.5rem;
-            margin-bottom: 25px;
-            display: inline-block;
-            color: #4a6cf7;
+            margin-bottom: 30px;
+            display: block;
+            background: linear-gradient(90deg, #4a6cf7, #3a5ae0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
             transition: var(--transition);
-            animation: pulse 2s infinite;
         }
 
-        .no-servers-title {
-            font-size: 1.8rem;
-            font-weight: 700;
+        .no-servers h3 {
+            font-size: 2rem;
             margin-bottom: 20px;
-            color: #ffffff;
-            letter-spacing: -0.5px;
+            color: var(--text);
+            font-weight: 700;
         }
 
-        .no-servers-description {
+        .no-servers p {
             color: var(--text-muted);
-            font-size: 1.1rem;
+            max-width: 600px;
             margin: 0 auto 35px;
+            font-size: 1.2rem;
             line-height: 1.7;
-            max-width: 400px;
         }
 
-        /* Floating server icons in the background */
-        .floating-server {
+        .invite-btn {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 16px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 10px 20px rgba(74, 108, 247, 0.3);
+        }
+
+        .invite-btn::before {
+            content: '';
             position: absolute;
-            opacity: 0.05;
-            color: var(--primary);
-            font-size: 4rem;
-            z-index: 0;
-            animation: float 20s infinite linear;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
         }
 
-        @keyframes float {
-            0% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-            25% {
-                transform: translate(50px, -30px) rotate(90deg);
-            }
-            50% {
-                transform: translate(0, 50px) rotate(180deg);
-            }
-            75% {
-                transform: translate(-50px, 0) rotate(270deg);
-            }
-            100% {
-                transform: translate(0, 0) rotate(360deg);
-            }
+        .invite-btn:hover::before {
+            left: 100%;
         }
 
-        /* Error State */
+        .invite-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(74, 108, 247, 0.4);
+        }
+
         .error-message {
             grid-column: 1 / -1;
             text-align: center;
@@ -602,12 +585,8 @@
                 font-size: 1.6rem;
             }
             
-            .no-servers-title {
-                font-size: 1.6rem;
-            }
-            
-            .no-servers-description {
-                font-size: 1rem;
+            .no-servers h3, .error-message h3 {
+                font-size: 1.8rem;
             }
 
             .nav-links {
@@ -631,14 +610,12 @@
             .server-card {
                 padding: 30px 20px;
             }
-            
-            .no-servers-content {
-                padding: 30px 20px;
-            }
         }
     </style>
 </head>
 <body>
+    <!-- Header -->
+
     <!-- Main Content -->
     <div class="container">
         <div id="main-content">
@@ -765,20 +742,27 @@
                 
                 // Handle 429 rate limit error
                 if (discordError && discordError.message === '429') {
-                    loadingText.textContent = 'Limit reached trying again in';
-                    let seconds = 5;
-                    
+                    loadingText.textContent = 'Limit reached trying again in ';
+                    let seconds = 10;
+    
+                    // Create a span for the countdown if it doesn't exist
+                    if (!countdownElement) {
+                        countdownElement = document.createElement('span');
+                        countdownElement.style.color = 'yellow';
+                        loadingText.appendChild(countdownElement);
+                    }
+    
                     const countdown = setInterval(() => {
                         countdownElement.textContent = `${seconds}s`;
                         seconds--;
-                        
+        
                         if (seconds < 0) {
                             clearInterval(countdown);
                             // Retry after countdown
                             displayOwnedServers(user);
                         }
                     }, 1000);
-                    
+    
                     return;
                 }
                 
@@ -818,7 +802,7 @@
                                 <p class="no-servers-description">
                                     Sentinel isn't currently managing any servers where you have administrator permissions. Add the bot and then refresh this page.
                                 </p>
-                                <a href="https://discord.com/oauth2/authorize?client_id=1388167308358189136&permissions=8&integration_type=0&scope=bot" 
+                                <a href="https://discord.com/oauth2/authorize?client_id=1376737212493987970&permissions=8&integration_type=0&scope=bot" 
                                     class="cta-button" 
                                     target="_blank">
                                     <i class="fab fa-discord"></i> Add to Discord
@@ -826,21 +810,6 @@
                             </div>
                         </div>
                     `;
-                    
-                    // Add floating server icons
-                    const floatingIcons = ['<i class="fas fa-server"></i>', '<i class="fas fa-database"></i>', 
-                                          '<i class="fas fa-cloud"></i>', '<i class="fas fa-shield-alt"></i>'];
-                    
-                    floatingIcons.forEach((icon, index) => {
-                        const floatingServer = document.createElement('div');
-                        floatingServer.className = 'floating-server';
-                        floatingServer.style.top = `${15 + index * 10}%`;
-                        floatingServer.style.left = `${10 + index * 5}%`;
-                        floatingServer.style.animationDelay = `${index * 1.5}s`;
-                        floatingServer.innerHTML = icon;
-                        document.body.appendChild(floatingServer);
-                    });
-                    
                     return;
                 }
 
