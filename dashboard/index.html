@@ -456,6 +456,27 @@
             animation: fadeInUp 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        .error-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .error-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            animation: fadeInUp 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -476,7 +497,24 @@
             animation: pulse 2s infinite;
         }
 
+        .error-icon {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            display: inline-block;
+            color: #ff6b6b;
+            transition: var(--transition);
+            animation: pulse 2s infinite;
+        }
+
         .no-servers-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .error-title {
             font-size: 1.8rem;
             font-weight: 700;
             margin-bottom: 20px;
@@ -492,11 +530,28 @@
             max-width: 400px;
         }
 
+        .error-description {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin: 0 auto 35px;
+            line-height: 1.7;
+            max-width: 400px;
+        }
+
         /* Floating server icons in the background */
         .floating-server {
             position: absolute;
             opacity: 0.05;
             color: var(--primary);
+            font-size: 4rem;
+            z-index: 0;
+            animation: float 20s infinite linear;
+        }
+
+        .floating-error {
+            position: absolute;
+            opacity: 0.05;
+            color: var(--error);
             font-size: 4rem;
             z-index: 0;
             animation: float 20s infinite linear;
@@ -518,65 +573,6 @@
             100% {
                 transform: translate(0, 0) rotate(360deg);
             }
-        }
-
-        /* Error State */
-        .error-message {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 70px 40px;
-            background: var(--glass-bg);
-            border-radius: var(--border-radius);
-            backdrop-filter: blur(15px);
-            max-width: 800px;
-            margin: 0 auto;
-            animation: cardAppear 0.8s forwards;
-            opacity: 0;
-            transform: translateY(30px);
-            border: 1px solid rgba(255, 107, 107, 0.2);
-        }
-
-        .error-message i {
-            font-size: 4.5rem;
-            color: #ff6b6b;
-            margin-bottom: 30px;
-            display: block;
-        }
-
-        .error-message h3 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: var(--text);
-            font-weight: 700;
-        }
-
-        .error-message p {
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto 35px;
-            font-size: 1.2rem;
-            line-height: 1.7;
-        }
-
-        .retry-btn {
-            background: rgba(255, 107, 107, 0.15);
-            color: #ff6b6b;
-            border: 1px solid rgba(255, 107, 107, 0.3);
-            padding: 14px 36px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .retry-btn:hover {
-            background: rgba(255, 107, 107, 0.2);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.15);
         }
 
         /* Responsive */
@@ -611,6 +607,14 @@
                 font-size: 1rem;
             }
 
+            .error-title {
+                font-size: 1.6rem;
+            }
+            
+            .error-description {
+                font-size: 1rem;
+            }
+
             .nav-links {
                 display: none;
             }
@@ -634,6 +638,10 @@
             }
             
             .no-servers-content {
+                padding: 30px 20px;
+            }
+            
+            .error-content {
                 padding: 30px 20px;
             }
         }
@@ -727,12 +735,7 @@
                 await displayOwnedServers(user);
             } catch (error) {
                 console.error('Error loading dashboard:', error);
-                document.getElementById('main-content').innerHTML = `
-                    <div class="error-container">
-                        <h1>Failed to load dashboard</h1>
-                        <p>${error.message}</p>
-                    </div>
-                `;
+                showErrorState(error.message || 'Failed to load dashboard');
             }
         }
 
@@ -766,6 +769,50 @@
             }
         }
 
+        function showErrorState(errorMessage) {
+            const serversContainer = document.getElementById('owned-servers');
+            const loadingOverlay = document.querySelector('.loading-overlay');
+            
+            // Hide loading overlay
+            if (loadingOverlay) {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 800);
+            }
+            
+            // Show error state
+            serversContainer.innerHTML = `
+                <div class="error-container">
+                    <div class="blur-overlay"></div>
+                    <div class="error-content">
+                        <i class="fas fa-exclamation-triangle error-icon"></i>
+                        <h3 class="error-title">Error Loading Servers</h3>
+                        <p class="error-description">
+                            ${errorMessage || 'We encountered an issue while trying to fetch your server data.'}
+                        </p>
+                        <button class="cta-button" onclick="window.location.reload()">
+                            <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add floating error icons
+            const floatingIcons = ['<i class="fas fa-exclamation-triangle"></i>', '<i class="fas fa-bug"></i>', 
+                                  '<i class="fas fa-times-circle"></i>', '<i class="fas fa-wifi-slash"></i>'];
+            
+            floatingIcons.forEach((icon, index) => {
+                const floatingError = document.createElement('div');
+                floatingError.className = 'floating-error';
+                floatingError.style.top = `${15 + index * 10}%`;
+                floatingError.style.left = `${10 + index * 5}%`;
+                floatingError.style.animationDelay = `${index * 1.5}s`;
+                floatingError.innerHTML = icon;
+                document.body.appendChild(floatingError);
+            });
+        }
+
         async function displayOwnedServers(user) {
             const serversContainer = document.getElementById('owned-servers');
             const loadingOverlay = document.querySelector('.loading-overlay');
@@ -785,25 +832,25 @@
                 const { data: userGuilds, error: discordError } = await fetchDiscordGuilds();
                 
                 // Handle 429 rate limit error
-if (discordError && discordError.message === '429') {
-    // Replace the entire loading text with new message
-    loadingText.innerHTML = 'Limit reached trying again in <span id="countdown" class="countdown">10s</span>';
-    
-    let seconds = 10;
-    const countdownElement = document.getElementById('countdown');
-    
-    const countdown = setInterval(() => {
-        countdownElement.textContent = `${seconds}s`;
-        seconds--;
-        
-        if (seconds < 0) {
-            clearInterval(countdown);
-            displayOwnedServers(user);
-        }
-    }, 1000);
-    
-    return;
-}
+                if (discordError && discordError.message === '429') {
+                    // Replace the entire loading text with new message
+                    loadingText.innerHTML = 'Limit reached trying again in <span id="countdown" class="countdown">10s</span>';
+                    
+                    let seconds = 10;
+                    const countdownElement = document.getElementById('countdown');
+                    
+                    const countdown = setInterval(() => {
+                        countdownElement.textContent = `${seconds}s`;
+                        seconds--;
+                        
+                        if (seconds < 0) {
+                            clearInterval(countdown);
+                            displayOwnedServers(user);
+                        }
+                    }, 1000);
+                    
+                    return;
+                }
                 
                 if (discordError) throw discordError;
 
@@ -898,30 +945,7 @@ if (discordError && discordError.message === '429') {
 
             } catch (error) {
                 console.error('Server load failed:', error);
-                
-                // Hide loading overlay on error
-                if (loadingOverlay) {
-                    loadingOverlay.style.opacity = '0';
-                    setTimeout(() => {
-                        loadingOverlay.style.display = 'none';
-                    }, 800);
-                }
-                
-                // Ensure serversContainer exists before setting innerHTML
-                if (serversContainer) {
-                    serversContainer.innerHTML = `
-                        <div class="error-message">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <h3>Error Loading Servers</h3>
-                            <p>${error.message || 'Failed to fetch server data'}</p>
-                            <button class="retry-btn" onclick="window.location.reload()">
-                                <i class="fas fa-sync-alt"></i> Try Again
-                            </button>
-                        </div>
-                    `;
-                } else {
-                    console.error('Servers container not found:', error);
-                }
+                showErrorState(error.message || 'Failed to fetch server data');
             }
         }
 
