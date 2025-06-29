@@ -557,6 +557,31 @@
             animation: float 20s infinite linear;
         }
 
+        /* Error-specific button styles */
+        .error-content .error-button {
+            background: rgba(120, 120, 120, 0.15);
+            color: var(--text);
+            border: 1px solid rgba(120, 120, 120, 0.3);
+            padding: 12px 26px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .error-content .error-button:hover {
+            background: rgba(120, 120, 120, 0.25);
+            border-color: rgba(120, 120, 120, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(120, 120, 120, 0.2);
+        }
+
         @keyframes float {
             0% {
                 transform: translate(0, 0) rotate(0deg);
@@ -769,6 +794,17 @@
             }
         }
 
+        async function logout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                window.location.href = 'auth.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+                window.location.href = 'auth.html';
+            }
+        }
+
         function showErrorState(errorMessage) {
             const serversContainer = document.getElementById('owned-servers');
             const loadingOverlay = document.querySelector('.loading-overlay');
@@ -790,9 +826,14 @@
                         <h3 class="error-title">Error Loading Servers</h3>
                         <p class="error-description">
                             ${errorMessage || 'We encountered an issue while trying to fetch your server data.'}
+                            <br><br>
+                            Please log out and sign in again using the button below.
                         </p>
                         <button class="cta-button" onclick="window.location.reload()">
                             <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
+                        <button class="error-button" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Log Out & Re-Authenticate
                         </button>
                     </div>
                 </div>
@@ -865,7 +906,7 @@
                 const botGuildIds = new Set(botGuilds.map(g => g.guild_id));
                 
                 const validServers = userGuilds.filter(guild => {
-                    const hasAdmin = guild.owner || (BigInt(guild.permissions) & BigInt(0x8));
+                    const hasAdmin = guild.owner || (BigInt(guild.permissions) & BigInt(0x8);
                     return hasAdmin && botGuildIds.has(guild.id);
                 });
 
