@@ -6,25 +6,529 @@
     <title>Sentinel Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script src="auth.js"></script>
+    <style>
+        :root {
+            --primary: #4a6cf7;
+            --primary-dark: #3a5ae0;
+            --primary-light: #5d7df8;
+            --secondary: #1e2227;
+            --dark: #1a1d21;
+            --darker: #15181c;
+            --text: #eef1f5;
+            --text-muted: #a1a8b3;
+            --success: #4d7cff;
+            --border-radius: 12px;
+            --transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0d0f12 0%, #14171b 100%);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: rgba(22, 25, 29, 0.95);
+            backdrop-filter: blur(8px);
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+            transform: translateY(0);
+            animation: headerSlideDown 0.8s ease-out;
+        }
+
+        @keyframes headerSlideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .scrolled {
+            padding: 10px 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            transition: var(--transition);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text);
+            transition: var(--transition);
+        }
+
+        .logo-icon {
+            background: rgba(74, 108, 247, 0.15);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            border: 1px solid rgba(74, 108, 247, 0.2);
+        }
+
+        /* Dashboard Specific Styles */
+        .dashboard-container {
+            padding-top: 120px;
+            padding-bottom: 60px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 60px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            color: var(--text);
+            position: relative;
+        }
+
+        .dashboard-header h1::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .dashboard-header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.7;
+        }
+
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .server-card {
+            background: rgba(22, 25, 29, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius);
+            padding: 30px;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.8s forwards;
+            animation-delay: calc(var(--delay) * 0.1s);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .server-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(74, 108, 247, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+        }
+
+        .server-icon-container {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .server-icon {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: rgba(74, 108, 247, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 1px solid rgba(74, 108, 247, 0.2);
+            transition: var(--transition);
+        }
+
+        .server-card:hover .server-icon {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(74, 108, 247, 0.2);
+        }
+
+        .server-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .server-icon-content {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .server-info {
+            width: 100%;
+        }
+
+        .server-name {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .server-meta {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .server-role {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(26, 29, 33, 0.4);
+            padding: 6px 12px;
+            border-radius: 50px;
+            transition: var(--transition);
+        }
+
+        .server-card:hover .server-role {
+            background: rgba(74, 108, 247, 0.15);
+        }
+
+        .server-role i {
+            color: var(--primary);
+        }
+
+        /* Loading states */
+        .no-servers, .error-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 30px;
+            background: rgba(22, 25, 29, 0.5);
+            border-radius: var(--border-radius);
+            border: 1px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .no-servers i, .error-message i {
+            font-size: 3.5rem;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .no-servers h3, .error-message h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+
+        .no-servers p, .error-message p {
+            margin-bottom: 25px;
+            color: var(--text-muted);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .invite-btn, .retry-btn {
+            background: rgba(74, 108, 247, 0.15);
+            color: var(--text);
+            border: 1px solid rgba(74, 108, 247, 0.3);
+            padding: 12px 28px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1rem;
+        }
+
+        .invite-btn:hover, .retry-btn:hover {
+            background: rgba(74, 108, 247, 0.25);
+            border-color: rgba(74, 108, 247, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(74, 108, 247, 0.2);
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 18, 22, 0.95);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .spinner-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+        }
+
+        .spinner {
+            border: 5px solid rgba(74, 108, 247, 0.2);
+            border-top: 5px solid #4a6cf7;
+            border-radius: 50%;
+            width: 100%;
+            height: 100%;
+            animation: spin 1.5s linear infinite;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .spinner-inner {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(74, 108, 247, 0.1);
+            border-top: 3px solid rgba(74, 108, 247, 0.4);
+            border-radius: 50%;
+            animation: spin 1s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .loading-text span {
+            display: inline-block;
+            animation: wave 1s ease-in-out infinite;
+            animation-delay: calc(0.1s * var(--i));
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1100px) {
+            .dashboard-header h1 {
+                font-size: 2.4rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-container {
+                padding-top: 100px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .servers-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .server-card {
+                padding: 25px 20px;
+            }
+            
+            .server-icon-container {
+                width: 85px;
+                height: 85px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Animated background -->
-    <div class="background-effect" id="particles"></div>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    Sentinel
+                </a>
+                
+                <a href="#cta" class="cta-button">
+                    <i class="fab fa-discord"></i> Add to Discord
+                </a>
+            </nav>
+        </div>
+    </header>
 
-    <div class="container">
-        <main id="main-content">
-            <div class="loader">
-                <div class="spinner"></div>
-                <p>Loading dashboard...</p>
+    <!-- Dashboard Content -->
+    <div class="container dashboard-container">
+        <div class="dashboard-header">
+            <h1>Your Servers</h1>
+            <p>Manage all your protected Discord communities with Sentinel's advanced security features</p>
+        </div>
+        
+        <div id="owned-servers" class="servers-grid">
+            <!-- Server cards will be dynamically inserted here -->
+            <div class="server-card" style="--delay:1; animation-delay: 0.1s;">
+                <div class="server-icon-container">
+                    <div class="server-icon">
+                        <div class="server-icon-content">
+                            <img src="https://cdn.discordapp.com/icons/1234567890/abcdefghijklmnop.webp?size=128" alt="Gaming Community">
+                        </div>
+                    </div>
+                </div>
+                <div class="server-info">
+                    <h3 class="server-name">Gaming Community</h3>
+                    <div class="server-meta">
+                        <div class="server-role">
+                            <i class="fas fa-crown"></i>
+                            <span>Owner</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </main>
+            
+            <div class="server-card" style="--delay:2; animation-delay: 0.2s;">
+                <div class="server-icon-container">
+                    <div class="server-icon">
+                        <div class="server-icon-content">
+                            <img src="https://cdn.discordapp.com/icons/0987654321/qrstuvwxyz.webp?size=128" alt="Dev Server">
+                        </div>
+                    </div>
+                </div>
+                <div class="server-info">
+                    <h3 class="server-name">Developer Community</h3>
+                    <div class="server-meta">
+                        <div class="server-role">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="server-card" style="--delay:3; animation-delay: 0.3s;">
+                <div class="server-icon-container">
+                    <div class="server-icon">
+                        <div class="server-icon-content">
+                            <img src="https://cdn.discordapp.com/icons/1122334455/abcdefghijklmnop.webp?size=128" alt="Art Community">
+                        </div>
+                    </div>
+                </div>
+                <div class="server-info">
+                    <h3 class="server-name">Art & Design Hub</h3>
+                    <div class="server-meta">
+                        <div class="server-role">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Admin</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="server-card" style="--delay:4; animation-delay: 0.4s;">
+                <div class="server-icon-container">
+                    <div class="server-icon">
+                        <div class="server-icon-content">
+                            <img src="https://cdn.discordapp.com/icons/5566778899/qwertyuiop.webp?size=128" alt="Music Lovers">
+                        </div>
+                    </div>
+                </div>
+                <div class="server-info">
+                    <h3 class="server-name">Music Lovers</h3>
+                    <div class="server-meta">
+                        <div class="server-role">
+                            <i class="fas fa-crown"></i>
+                            <span>Owner</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Loading Overlay -->
-    <div class="loading-overlay">
+    <div class="loading-overlay" style="display: none; opacity: 0;">
         <div class="loading-content">
             <div class="spinner-container">
                 <div class="spinner"></div>
@@ -54,67 +558,47 @@
     </div>
 
     <script>
-        // Initialize Supabase client
-        window.supabase = supabase.createClient(
-            'https://doptbjwopxncfqadbwie.supabase.co',
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvcHRiandvcHhuY2ZxYWRid2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNTk2MDcsImV4cCI6MjA2NjYzNTYwN30.bAa2UFhRYYWkCpZ84Fl2_sZiN2PKkL5m4GxnFkGeCBk',
-            {
-                auth: {
-                    flowType: 'pkce',
-                    autoRefreshToken: true,
-                    detectSessionInUrl: true
+        // Initialize animations
+        document.addEventListener('DOMContentLoaded', () => {
+            // Header scroll effect
+            window.addEventListener('scroll', () => {
+                const header = document.querySelector('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
                 }
-            }
-        );
-
-        // Create animated background particles
-        function createParticles() {
-            const container = document.getElementById('particles');
-            const particleCount = 25;
-            const colors = [
-                'rgba(74, 108, 247, 0.08)',
-                'rgba(93, 125, 248, 0.06)',
-                'rgba(77, 124, 255, 0.05)'
-            ];
+            });
             
-            for (let i = 0; i < particleCount; i++) {
-                const particle = document.createElement('div');
-                particle.classList.add('particle');
-                
-                // Random properties
-                const size = Math.random() * 300 + 100;
-                const posX = Math.random() * 100;
-                const posY = Math.random() * 100;
-                const delay = Math.random() * 15;
-                const duration = Math.random() * 30 + 20;
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                
-                particle.style.width = `${size}px`;
-                particle.style.height = `${size}px`;
-                particle.style.left = `${posX}%`;
-                particle.style.top = `${posY}%`;
-                particle.style.animationDelay = `${delay}s`;
-                particle.style.animationDuration = `${duration}s`;
-                particle.style.opacity = Math.random() * 0.1 + 0.05;
-                particle.style.background = color;
-                
-                container.appendChild(particle);
-            }
-        }
-
-        // Check auth status and redirect if needed
-        document.addEventListener('DOMContentLoaded', async () => {
-            createParticles();
+            // Animation on scroll
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
             
-            const { data: { session }, error } = await window.supabase.auth.getSession();
+            document.querySelectorAll('.server-card').forEach(el => {
+                el.style.animationPlayState = 'paused';
+                observer.observe(el);
+            });
             
-            if (session) {
-                // User is authenticated - show dashboard
-                checkAuth();
-            } else {
-                // No session - redirect immediately to login
-                window.location.href = 'auth.html';
-            }
+            // Simulate loading state for demo
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').style.display = 'flex';
+                setTimeout(() => {
+                    document.querySelector('.loading-overlay').style.opacity = '1';
+                }, 10);
+            }, 500);
+            
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.querySelector('.loading-overlay').style.display = 'none';
+                }, 800);
+            }, 2500);
         });
     </script>
 </body>
