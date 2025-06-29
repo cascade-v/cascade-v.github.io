@@ -851,6 +851,12 @@ if (discordError && discordError.message === '429') {
                         loadingOverlay.style.display = 'none';
                     }, 800);
                 }
+
+                const dashboardHeader = document.querySelector('.dashboard-header');
+
+                if (dashboardHeader) {
+                    dashboardHeader.style.display = 'none'; // Hide the header
+                }
                 
                 // Ensure serversContainer exists before setting innerHTML
                 if (serversContainer) {
