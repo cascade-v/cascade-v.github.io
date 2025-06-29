@@ -22,8 +22,6 @@
             --transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
             --glass-bg: rgba(26, 29, 33, 0.6);
             --glass-border: rgba(255, 255, 255, 0.08);
-            --owner-gradient: linear-gradient(135deg, #ffd700 0%, #ffaa00 100%);
-            --admin-gradient: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
         }
 
         * {
@@ -164,7 +162,7 @@
         .dashboard-header h1 {
             font-size: 3.2rem;
             font-weight: 800;
-            background: var(--admin-gradient);
+            background: linear-gradient(90deg, #4a6cf7, #3a5ae0);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -277,7 +275,7 @@
             100% { transform: rotate(-360deg); }
         }
 
-        /* Servers Grid - Enhanced Card Design */
+        /* Servers Grid - Minimalist Card Design */
         .servers-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -286,20 +284,22 @@
         }
 
         .server-card {
-            background: var(--glass-bg);
+            background: rgba(15, 18, 22, 0.95);
             border-radius: var(--border-radius);
             padding: 35px 30px;
             transition: var(--transition);
             backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
+            border: 1px solid rgba(74, 108, 247, 0.15);
             position: relative;
             overflow: hidden;
             transform: translateY(0);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
             animation: cardAppear 0.8s forwards;
             opacity: 0;
             transform: translateY(30px);
             cursor: pointer;
+            display: flex;
+            flex-direction: column;
         }
 
         @keyframes cardAppear {
@@ -309,192 +309,117 @@
             }
         }
 
+        .server-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            border-color: rgba(74, 108, 247, 0.3);
+            background: rgba(20, 23, 27, 0.95);
+        }
+
         .server-card::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
-            height: 5px;
-            opacity: 0;
+            height: 4px;
+            background: var(--primary);
+            opacity: 0.3;
             transition: var(--transition);
             z-index: 2;
-        }
-
-        .server-card::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at center, 
-                        rgba(74, 108, 247, 0.05) 0%, 
-                        transparent 70%);
-            opacity: 0;
-            transition: var(--transition);
-            z-index: 1;
-        }
-
-        .server-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
-            border-color: rgba(74, 108, 247, 0.3);
         }
 
         .server-card:hover::before {
             opacity: 1;
         }
 
-        .server-card:hover::after {
-            opacity: 1;
-        }
-
-        .server-icon-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-            position: relative;
-            z-index: 3;
-        }
-
-        .server-icon {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            transition: var(--transition);
-            border: 2px solid transparent;
-        }
-
-        .server-icon-bg {
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            width: calc(100% + 20px);
-            height: calc(100% + 20px);
-            border-radius: 50%;
-            filter: blur(15px);
-            opacity: 0.4;
-            z-index: 1;
-            transition: var(--transition);
-        }
-
-        .server-icon-content {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.2rem;
-            font-weight: 700;
-            color: var(--text);
-            background: var(--darker);
-            z-index: 3;
-            transition: var(--transition);
-        }
-
-        .server-card:hover .server-icon {
-            transform: scale(1.1);
-        }
-
-        .server-card:hover .server-icon-bg {
-            transform: scale(1.2);
-            opacity: 0.6;
-        }
-
-        .server-card:hover .server-icon-content {
-            transform: rotate(5deg);
-        }
-
         .server-info {
-            text-align: center;
             margin-bottom: 25px;
             position: relative;
             z-index: 3;
         }
 
         .server-name {
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             color: var(--text);
             transition: var(--transition);
             letter-spacing: -0.5px;
-        }
-
-        .server-card:hover .server-name {
-            letter-spacing: 0.5px;
-        }
-
-        .server-meta {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            font-size: 1.1rem;
-        }
-
-        .server-role {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 8px 18px;
-            border-radius: 30px;
+            justify-content: space-between;
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
+            font-size: 1.1rem;
+            color: #4ade80;
+            font-weight: 500;
+            gap: 12px;
+            padding-top: 8px;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.7);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .card-footer {
+            margin-top: auto;
+            position: relative;
+            z-index: 3;
+        }
+
+        .manage-btn {
+            background: rgba(74, 108, 247, 0.15);
+            color: var(--text);
+            border: 1px solid rgba(74, 108, 247, 0.3);
+            padding: 14px;
+            border-radius: 10px;
             font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
             transition: var(--transition);
-            background: rgba(255, 255, 255, 0.05);
+            display: block;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
         }
 
-        /* Owner/Admin Styles */
-        .owner .server-card::before {
-            background: var(--owner-gradient);
+        .manage-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
         }
 
-        .owner .server-icon {
-            border-color: rgba(255, 215, 0, 0.4);
+        .manage-btn:hover::after {
+            left: 100%;
         }
 
-        .owner .server-icon-bg {
-            background: var(--owner-gradient);
-        }
-
-        .owner .server-role {
-            background: rgba(255, 215, 0, 0.1);
-        }
-
-        .owner .server-role span {
-            background: var(--owner-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .admin .server-card::before {
-            background: var(--admin-gradient);
-        }
-
-        .admin .server-icon {
-            border-color: rgba(74, 108, 247, 0.4);
-        }
-
-        .admin .server-icon-bg {
-            background: var(--admin-gradient);
-        }
-
-        .admin .server-role {
-            background: rgba(74, 108, 247, 0.1);
-        }
-
-        .admin .server-role span {
-            background: var(--admin-gradient);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+        .manage-btn:hover {
+            background: rgba(74, 108, 247, 0.25);
+            border-color: rgba(74, 108, 247, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.2);
         }
 
         /* Empty & Error States */
@@ -517,7 +442,7 @@
             font-size: 4.5rem;
             margin-bottom: 30px;
             display: block;
-            background: var(--admin-gradient);
+            background: linear-gradient(90deg, #4a6cf7, #3a5ae0);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -656,13 +581,8 @@
                 font-size: 1.1rem;
             }
             
-            .server-icon {
-                width: 110px;
-                height: 110px;
-            }
-            
             .server-name {
-                font-size: 1.5rem;
+                font-size: 1.6rem;
             }
             
             .no-servers h3, .error-message h3 {
@@ -704,13 +624,7 @@
                     </div>
                     Sentinel
                 </a>
-                
-                <div class="nav-links">
-                    <a href="#" class="active">Dashboard</a>
-                    <a href="#">Support</a>
-                    <a href="#">Documentation</a>
-                </div>
-                
+
                 <a href="#" class="cta-button">
                     <i class="fab fa-discord"></i> Add to Discord
                 </a>
@@ -907,29 +821,17 @@
                 serversContainer.innerHTML = validServers.map((guild, index) => {
                     const delay = index * 0.1;
                     return `
-                        <div class="server-card ${guild.owner ? 'owner' : 'admin'}" 
-                            data-guild-id="${guild.id}" 
+                        <div class="server-card" data-guild-id="${guild.id}" 
                             style="animation-delay: ${delay}s">
-                            <div class="server-icon-container">
-                                <div class="server-icon">
-                                    <div class="server-icon-bg"></div>
-                                    <div class="server-icon-content">
-                                        ${guild.icon 
-                                            ? `<img src="https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.webp?size=128" 
-                                                    alt="${guild.name}" 
-                                                    loading="lazy">`
-                                            : `<span>${guild.name.charAt(0)}</span>`}
-                                    </div>
+                            <div class="server-info">
+                                <div class="server-name">${guild.name}</div>
+                                <div class="server-status">
+                                    <span class="status-indicator"></span>
+                                    <span>Online & Secured</span>
                                 </div>
                             </div>
-                            <div class="server-info">
-                                <h3 class="server-name">${guild.name}</h3>
-                                <div class="server-meta">
-                                    <div class="server-role">
-                                        <i class="fas ${guild.owner ? 'fa-crown' : 'fa-shield-alt'}"></i>
-                                        <span>${guild.owner ? 'Owner' : 'Admin'}</span>
-                                    </div>
-                                </div>
+                            <div class="card-footer">
+                                <button class="manage-btn">Manage Server</button>
                             </div>
                         </div>
                     `;
