@@ -906,7 +906,7 @@
                 const botGuildIds = new Set(botGuilds.map(g => g.guild_id));
                 
                 const validServers = userGuilds.filter(guild => {
-                    const hasAdmin = guild.owner || (BigInt(guild.permissions) & BigInt(0x8);
+                    const hasAdmin = guild.owner || (BigInt(guild.permissions) & BigInt(0x8));
                     return hasAdmin && botGuildIds.has(guild.id);
                 });
 
