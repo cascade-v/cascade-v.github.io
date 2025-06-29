@@ -259,11 +259,13 @@
         }
 
         .countdown {
-            color: var(--error);
+            color: yellow; /* Force yellow color (or use --error if that's yellow) */
             font-size: 1.1rem;
             font-weight: 600;
-            margin-top: 10px;
+            display: inline; /* Ensure it stays on the same line */
+            margin-left: 4px; /* Small spacing instead of margin-top */
         }
+
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
