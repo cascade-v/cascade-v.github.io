@@ -259,11 +259,11 @@
         }
 
         .countdown {
-            color: yellow; /* Force yellow color (or use --error if that's yellow) */
+            color: yellow; 
             font-size: 1.1rem;
             font-weight: 600;
-            display: inline; /* Ensure it stays on the same line */
-            margin-left: 4px; /* Small spacing instead of margin-top */
+            display: inline;
+            margin-left: 4px;
         }
 
 
@@ -424,8 +424,64 @@
             box-shadow: 0 5px 15px rgba(74, 108, 247, 0.2);
         }
 
-        /* Empty & Error States */
-        .no-servers, .error-message {
+        /* Error Message Styles - Updated to match design */
+        .error-container {
+            text-align: center;
+            max-width: 500px;
+            padding: 30px;
+            animation: fadeIn 0.8s forwards;
+            opacity: 0;
+        }
+
+        .error-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+        }
+
+        .error-title {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .error-description {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        /* Gray Button Style - Consistent for all errors */
+        .gray-button {
+            background: rgba(120, 120, 120, 0.15);
+            color: var(--text);
+            border: 1px solid rgba(120, 120, 120, 0.3);
+            padding: 12px 26px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .gray-button:hover {
+            background: rgba(120, 120, 120, 0.25);
+            border-color: rgba(120, 120, 120, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(120, 120, 120, 0.2);
+        }
+
+        /* Empty State */
+        .no-servers {
             grid-column: 1 / -1;
             text-align: center;
             padding: 70px 40px;
@@ -505,64 +561,6 @@
             box-shadow: 0 15px 30px rgba(74, 108, 247, 0.4);
         }
 
-        .error-message {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 70px 40px;
-            background: var(--glass-bg);
-            border-radius: var(--border-radius);
-            backdrop-filter: blur(15px);
-            max-width: 800px;
-            margin: 0 auto;
-            animation: cardAppear 0.8s forwards;
-            opacity: 0;
-            transform: translateY(30px);
-            border: 1px solid rgba(255, 107, 107, 0.2);
-        }
-
-        .error-message i {
-            font-size: 4.5rem;
-            color: #ff6b6b;
-            margin-bottom: 30px;
-            display: block;
-        }
-
-        .error-message h3 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: var(--text);
-            font-weight: 700;
-        }
-
-        .error-message p {
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto 35px;
-            font-size: 1.2rem;
-            line-height: 1.7;
-        }
-
-        .retry-btn {
-            background: rgba(255, 107, 107, 0.15);
-            color: #ff6b6b;
-            border: 1px solid rgba(255, 107, 107, 0.3);
-            padding: 14px 36px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .retry-btn:hover {
-            background: rgba(255, 107, 107, 0.2);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.15);
-        }
-
         /* Responsive */
         @media (max-width: 1100px) {
             .servers-grid {
@@ -587,7 +585,7 @@
                 font-size: 1.6rem;
             }
             
-            .no-servers h3, .error-message h3 {
+            .no-servers h3 {
                 font-size: 1.8rem;
             }
 
@@ -689,8 +687,16 @@
                 console.error('Error loading dashboard:', error);
                 document.getElementById('main-content').innerHTML = `
                     <div class="error-container">
-                        <h1>Failed to load dashboard</h1>
-                        <p>${error.message}</p>
+                        <div class="error-icon">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                        <h2 class="error-title">Failed to load dashboard</h2>
+                        <p class="error-description">
+                            ${error.message || 'An unexpected error occurred'}
+                        </p>
+                        <button class="gray-button" onclick="window.location.reload()">
+                            <i class="fas fa-sync-alt"></i> Try Again
+                        </button>
                     </div>
                 `;
             }
@@ -745,25 +751,25 @@
                 const { data: userGuilds, error: discordError } = await fetchDiscordGuilds();
                 
                 // Handle 429 rate limit error
-if (discordError && discordError.message === '429') {
-    // Replace the entire loading text with new message
-    loadingText.innerHTML = 'Limit reached trying again in <span id="countdown" class="countdown">10s</span>';
-    
-    let seconds = 10;
-    const countdownElement = document.getElementById('countdown');
-    
-    const countdown = setInterval(() => {
-        countdownElement.textContent = `${seconds}s`;
-        seconds--;
-        
-        if (seconds < 0) {
-            clearInterval(countdown);
-            displayOwnedServers(user);
-        }
-    }, 1000);
-    
-    return;
-}
+                if (discordError && discordError.message === '429') {
+                    // Replace the entire loading text with new message
+                    loadingText.innerHTML = 'Limit reached trying again in <span id="countdown" class="countdown">10s</span>';
+                    
+                    let seconds = 10;
+                    const countdownElement = document.getElementById('countdown');
+                    
+                    const countdown = setInterval(() => {
+                        countdownElement.textContent = `${seconds}s`;
+                        seconds--;
+                        
+                        if (seconds < 0) {
+                            clearInterval(countdown);
+                            displayOwnedServers(user);
+                        }
+                    }, 1000);
+                    
+                    return;
+                }
                 
                 if (discordError) throw discordError;
 
@@ -793,20 +799,17 @@ if (discordError && discordError.message === '429') {
                 // 4. Render results
                 if (validServers.length === 0) {
                     serversContainer.innerHTML = `
-                        <div class="no-servers-container">
-                            <div class="blur-overlay"></div>
-                            <div class="no-servers-content">
-                                <i class="fas fa-server no-servers-icon"></i>
-                                <h3 class="no-servers-title">No Managed Servers</h3>
-                                <p class="no-servers-description">
-                                    Sentinel isn't currently managing any servers where you have administrator permissions. Add the bot and then refresh this page.
-                                </p>
-                                <a href="https://discord.com/oauth2/authorize?client_id=1376737212493987970&permissions=8&integration_type=0&scope=bot" 
-                                    class="cta-button" 
-                                    target="_blank">
-                                    <i class="fab fa-discord"></i> Add to Discord
-                                </a>
-                            </div>
+                        <div class="no-servers">
+                            <i class="fas fa-server"></i>
+                            <h3>No Managed Servers</h3>
+                            <p>
+                                Sentinel isn't currently managing any servers where you have administrator permissions. Add the bot and then refresh this page.
+                            </p>
+                            <a href="https://discord.com/oauth2/authorize?client_id=1376737212493987970&permissions=8&integration_type=0&scope=bot" 
+                                class="invite-btn" 
+                                target="_blank">
+                                <i class="fab fa-discord"></i> Add to Discord
+                            </a>
                         </div>
                     `;
                     return;
@@ -855,11 +858,15 @@ if (discordError && discordError.message === '429') {
                 // Ensure serversContainer exists before setting innerHTML
                 if (serversContainer) {
                     serversContainer.innerHTML = `
-                        <div class="error-message">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <h3>Error Loading Servers</h3>
-                            <p>${error.message || 'Failed to fetch server data'}</p>
-                            <button class="retry-btn" onclick="window.location.reload()">
+                        <div class="error-container">
+                            <div class="error-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <h2 class="error-title">Error Loading Servers</h2>
+                            <p class="error-description">
+                                ${error.message || 'Failed to fetch server data'}
+                            </p>
+                            <button class="gray-button" onclick="window.location.reload()">
                                 <i class="fas fa-sync-alt"></i> Try Again
                             </button>
                         </div>
