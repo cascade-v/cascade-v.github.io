@@ -422,87 +422,104 @@
             box-shadow: 0 5px 15px rgba(74, 108, 247, 0.2);
         }
 
-        /* Empty & Error States */
-        .no-servers, .error-message {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 70px 40px;
-            background: var(--glass-bg);
-            border-radius: var(--border-radius);
-            border: 2px dashed var(--glass-border);
-            backdrop-filter: blur(15px);
-            max-width: 800px;
-            margin: 0 auto;
-            animation: cardAppear 0.8s forwards;
-            opacity: 0;
-            transform: translateY(30px);
-        }
-
-        .no-servers i {
-            font-size: 4.5rem;
-            margin-bottom: 30px;
-            display: block;
-            background: linear-gradient(90deg, #4a6cf7, #3a5ae0);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            transition: var(--transition);
-        }
-
-        .no-servers h3 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: var(--text);
-            font-weight: 700;
-        }
-
-        .no-servers p {
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto 35px;
-            font-size: 1.2rem;
-            line-height: 1.7;
-        }
-
-        .invite-btn {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white;
-            padding: 16px 40px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
-            border: none;
-            box-shadow: 0 10px 20px rgba(74, 108, 247, 0.3);
-        }
-
-        .invite-btn::before {
-            content: '';
-            position: absolute;
+        /* Updated "No Managed Servers" state */
+        .no-servers-container {
+            position: fixed;
             top: 0;
-            left: -100%;
+            left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: 0.5s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
         }
 
-        .invite-btn:hover::before {
-            left: 100%;
+        .blur-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 18, 22, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 1;
         }
 
-        .invite-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(74, 108, 247, 0.4);
+        .no-servers-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            animation: fadeInUp 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .no-servers-icon {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            display: inline-block;
+            color: #4a6cf7;
+            transition: var(--transition);
+            animation: pulse 2s infinite;
+        }
+
+        .no-servers-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .no-servers-description {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin: 0 auto 35px;
+            line-height: 1.7;
+            max-width: 400px;
+        }
+
+        /* Floating server icons in the background */
+        .floating-server {
+            position: absolute;
+            opacity: 0.05;
+            color: var(--primary);
+            font-size: 4rem;
+            z-index: 0;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(50px, -30px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 50px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-50px, 0) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        /* Error State */
         .error-message {
             grid-column: 1 / -1;
             text-align: center;
@@ -585,8 +602,12 @@
                 font-size: 1.6rem;
             }
             
-            .no-servers h3, .error-message h3 {
-                font-size: 1.8rem;
+            .no-servers-title {
+                font-size: 1.6rem;
+            }
+            
+            .no-servers-description {
+                font-size: 1rem;
             }
 
             .nav-links {
@@ -610,11 +631,31 @@
             .server-card {
                 padding: 30px 20px;
             }
+            
+            .no-servers-content {
+                padding: 30px 20px;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Header -->
+    <header>
+        <div class="container">
+            <nav class="navbar">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    Sentinel
+                </a>
+
+                <a href="#" class="cta-button">
+                    <i class="fab fa-discord"></i> Add to Discord
+                </a>
+            </nav>
+        </div>
+    </header>
 
     <!-- Main Content -->
     <div class="container">
@@ -787,17 +828,37 @@
                 // 4. Render results
                 if (validServers.length === 0) {
                     serversContainer.innerHTML = `
-                        <div class="no-servers">
-                            <i class="fas fa-robot"></i>
-                            <h3>No Managed Servers Found</h3>
-                            <p>Your bot isn't in any servers you administer</p>
-                            <a href="https://discord.com/oauth2/authorize?client_id=1376737212493987970&permissions=8&integration_type=0&scope=bot" 
-                                class="invite-btn" 
-                                target="_blank">
-                                <i class="fab fa-discord"></i> Add Bot to Server
-                            </a>
+                        <div class="no-servers-container">
+                            <div class="blur-overlay"></div>
+                            <div class="no-servers-content">
+                                <i class="fas fa-server no-servers-icon"></i>
+                                <h3 class="no-servers-title">No Managed Servers</h3>
+                                <p class="no-servers-description">
+                                    Sentinel isn't currently managing any servers where you have administrator permissions.
+                                </p>
+                                <a href="https://discord.com/oauth2/authorize?client_id=1376737212493987970&permissions=8&integration_type=0&scope=bot" 
+                                    class="cta-button" 
+                                    target="_blank">
+                                    <i class="fab fa-discord"></i> Add to Discord
+                                </a>
+                            </div>
                         </div>
                     `;
+                    
+                    // Add floating server icons
+                    const floatingIcons = ['<i class="fas fa-server"></i>', '<i class="fas fa-database"></i>', 
+                                          '<i class="fas fa-cloud"></i>', '<i class="fas fa-shield-alt"></i>'];
+                    
+                    floatingIcons.forEach((icon, index) => {
+                        const floatingServer = document.createElement('div');
+                        floatingServer.className = 'floating-server';
+                        floatingServer.style.top = `${15 + index * 10}%`;
+                        floatingServer.style.left = `${10 + index * 5}%`;
+                        floatingServer.style.animationDelay = `${index * 1.5}s`;
+                        floatingServer.innerHTML = icon;
+                        document.body.appendChild(floatingServer);
+                    });
+                    
                     return;
                 }
 
