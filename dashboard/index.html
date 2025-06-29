@@ -424,70 +424,14 @@
             box-shadow: 0 5px 15px rgba(74, 108, 247, 0.2);
         }
 
-        /* Error Message Styles - Updated to match design */
-        .error-container {
-            text-align: center;
-            max-width: 500px;
-            padding: 30px;
-            animation: fadeIn 0.8s forwards;
-            opacity: 0;
-        }
-
-        .error-icon {
-            font-size: 5rem;
-            margin-bottom: 20px;
-            color: #ff6b6b;
-        }
-
-        .error-title {
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            font-weight: 700;
-            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .error-description {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 30px;
-        }
-
-        /* Gray Button Style - Consistent for all errors */
-        .gray-button {
-            background: rgba(120, 120, 120, 0.15);
-            color: var(--text);
-            border: 1px solid rgba(120, 120, 120, 0.3);
-            padding: 12px 26px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .gray-button:hover {
-            background: rgba(120, 120, 120, 0.25);
-            border-color: rgba(120, 120, 120, 0.5);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(120, 120, 120, 0.2);
-        }
-
-        /* Empty State */
-        .no-servers {
+        /* Empty & Error States */
+        .no-servers, .error-card {
             grid-column: 1 / -1;
             text-align: center;
             padding: 70px 40px;
-            background: var(--glass-bg);
+            background: rgba(26, 29, 33, 0.7);
             border-radius: var(--border-radius);
-            border: 2px dashed var(--glass-border);
+            border: 2px dashed rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(15px);
             max-width: 800px;
             margin: 0 auto;
@@ -496,7 +440,11 @@
             transform: translateY(30px);
         }
 
-        .no-servers i {
+        .error-card {
+            border: 2px dashed rgba(255, 107, 107, 0.3);
+        }
+
+        .no-servers i, .error-card i {
             font-size: 4.5rem;
             margin-bottom: 30px;
             display: block;
@@ -507,14 +455,18 @@
             transition: var(--transition);
         }
 
-        .no-servers h3 {
+        .error-card i {
+            background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+        }
+
+        .no-servers h3, .error-card h3 {
             font-size: 2rem;
             margin-bottom: 20px;
             color: var(--text);
             font-weight: 700;
         }
 
-        .no-servers p {
+        .no-servers p, .error-card p {
             color: var(--text-muted);
             max-width: 600px;
             margin: 0 auto 35px;
@@ -522,7 +474,7 @@
             line-height: 1.7;
         }
 
-        .invite-btn {
+        .invite-btn, .logout-btn {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
             color: white;
             padding: 16px 40px;
@@ -541,7 +493,12 @@
             box-shadow: 0 10px 20px rgba(74, 108, 247, 0.3);
         }
 
-        .invite-btn::before {
+        .logout-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
+            box-shadow: 0 10px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .invite-btn::before, .logout-btn::before {
             content: '';
             position: absolute;
             top: 0;
@@ -552,13 +509,18 @@
             transition: 0.5s;
         }
 
-        .invite-btn:hover::before {
+        .invite-btn:hover::before, .logout-btn:hover::before {
             left: 100%;
         }
 
         .invite-btn:hover {
             transform: translateY(-5px);
             box-shadow: 0 15px 30px rgba(74, 108, 247, 0.4);
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(255, 107, 107, 0.4);
         }
 
         /* Responsive */
@@ -585,7 +547,7 @@
                 font-size: 1.6rem;
             }
             
-            .no-servers h3 {
+            .no-servers h3, .error-card h3 {
                 font-size: 1.8rem;
             }
 
@@ -610,11 +572,36 @@
             .server-card {
                 padding: 30px 20px;
             }
+            
+            .no-servers, .error-card {
+                padding: 40px 20px;
+            }
         }
     </style>
 </head>
 <body>
     <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="navbar">
+                <a href="#" class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    Sentinel
+                </a>
+                <div class="nav-links">
+                    <a href="#" class="active">Dashboard</a>
+                    <a href="#">Features</a>
+                    <a href="#">Documentation</a>
+                    <a href="#">Support</a>
+                </div>
+                <a href="#" class="cta-button">
+                    <i class="fas fa-user"></i> Account
+                </a>
+            </div>
+        </div>
+    </header>
 
     <!-- Main Content -->
     <div class="container">
@@ -658,6 +645,21 @@
             }
         );
 
+        // Logout function
+        async function logout() {
+            try {
+                // Sign out from Supabase
+                const { error } = await window.supabase.auth.signOut();
+                
+                // Redirect to auth page
+                window.location.href = 'auth.html';
+            } catch (error) {
+                console.error('Logout failed:', error);
+                // Still redirect even if logout fails
+                window.location.href = 'auth.html';
+            }
+        }
+
         // Auth functions
         async function checkAuth() {
             if (!window.supabase) {
@@ -686,16 +688,12 @@
             } catch (error) {
                 console.error('Error loading dashboard:', error);
                 document.getElementById('main-content').innerHTML = `
-                    <div class="error-container">
-                        <div class="error-icon">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <h2 class="error-title">Failed to load dashboard</h2>
-                        <p class="error-description">
-                            ${error.message || 'An unexpected error occurred'}
-                        </p>
-                        <button class="gray-button" onclick="window.location.reload()">
-                            <i class="fas fa-sync-alt"></i> Try Again
+                    <div class="error-card">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Failed to Load Dashboard</h3>
+                        <p>${error.message || 'An unexpected error occurred while loading your dashboard'}</p>
+                        <button class="logout-btn" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Logout & Reauthenticate
                         </button>
                     </div>
                 `;
@@ -858,16 +856,12 @@
                 // Ensure serversContainer exists before setting innerHTML
                 if (serversContainer) {
                     serversContainer.innerHTML = `
-                        <div class="error-container">
-                            <div class="error-icon">
-                                <i class="fas fa-exclamation-triangle"></i>
-                            </div>
-                            <h2 class="error-title">Error Loading Servers</h2>
-                            <p class="error-description">
-                                ${error.message || 'Failed to fetch server data'}
-                            </p>
-                            <button class="gray-button" onclick="window.location.reload()">
-                                <i class="fas fa-sync-alt"></i> Try Again
+                        <div class="error-card">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Error Loading Servers</h3>
+                            <p>${error.message || 'Failed to fetch server data. Please try again later.'}</p>
+                            <button class="logout-btn" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i> Logout & Reauthenticate
                             </button>
                         </div>
                     `;
