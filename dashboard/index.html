@@ -638,10 +638,8 @@
                 <div class="spinner"></div>
                 <div class="spinner-inner"></div>
             </div>
-            <p class="loading-text">
-                Finding your servers..
-                <span id="countdown" class="countdown"></span>
-            </p>
+            <p class="loading-text">Finding your servers..</p>
+            <p id="countdown" class="countdown"></p>
         </div>
     </div>
 
@@ -745,25 +743,30 @@
                 const { data: userGuilds, error: discordError } = await fetchDiscordGuilds();
                 
                 // Handle 429 rate limit error
-if (discordError && discordError.message === '429') {
-    // Replace the entire loading text with new message
-    loadingText.innerHTML = 'Limit reached trying again in <span id="countdown" class="countdown">10s</span>';
+                if (discordError && discordError.message === '429') {
+                    loadingText.textContent = 'Limit reached trying again in ';
+                    let seconds = 10;
     
-    let seconds = 10;
-    const countdownElement = document.getElementById('countdown');
+                    // Create a span for the countdown if it doesn't exist
+                    if (!countdownElement) {
+                        countdownElement = document.createElement('span');
+                        countdownElement.style.color = 'yellow';
+                        loadingText.appendChild(countdownElement);
+                    }
     
-    const countdown = setInterval(() => {
-        countdownElement.textContent = `${seconds}s`;
-        seconds--;
+                    const countdown = setInterval(() => {
+                        countdownElement.textContent = `${seconds}s`;
+                        seconds--;
         
-        if (seconds < 0) {
-            clearInterval(countdown);
-            displayOwnedServers(user);
-        }
-    }, 1000);
+                        if (seconds < 0) {
+                            clearInterval(countdown);
+                            // Retry after countdown
+                            displayOwnedServers(user);
+                        }
+                    }, 1000);
     
-    return;
-}
+                    return;
+                }
                 
                 if (discordError) throw discordError;
 
