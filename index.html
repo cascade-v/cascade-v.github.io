@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sentinel - Premium Discord Security</title>
+    <title>Sentinel Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -17,8 +17,11 @@
             --text: #eef1f5;
             --text-muted: #a1a8b3;
             --success: #4d7cff;
-            --border-radius: 12px;
+            --error: #ff6b6b;
+            --border-radius: 16px;
             --transition: all 0.4s cubic-bezier(0.22, 0.61, 0.36, 1);
+            --glass-bg: rgba(26, 29, 33, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
         }
 
         * {
@@ -42,7 +45,7 @@
             padding: 0 20px;
         }
 
-        /* Header & Navigation */
+        /* Header */
         header {
             background: rgba(22, 25, 29, 0.95);
             backdrop-filter: blur(8px);
@@ -52,18 +55,6 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             transition: var(--transition);
             transform: translateY(0);
-            animation: headerSlideDown 0.8s ease-out;
-        }
-
-        @keyframes headerSlideDown {
-            from {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
         }
 
         .scrolled {
@@ -89,6 +80,17 @@
             transition: var(--transition);
         }
 
+        .logo-icon {
+            background: rgba(74, 108, 247, 0.15);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+            border: 1px solid rgba(74, 108, 247, 0.2);
+        }
 
         .nav-links {
             display: flex;
@@ -104,20 +106,6 @@
             padding: 5px 0;
             font-size: 15px;
         }
-
-        .logo-icon {
-    background: rgba(74, 108, 247, 0.15);
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-    border: 1px solid rgba(74, 108, 247, 0.2);
-    /* Remove or comment out this line below */
-    /* animation: rotate 15s linear infinite; */
-}
 
         .nav-links a:hover, .nav-links a.active {
             color: var(--text);
@@ -161,142 +149,419 @@
             box-shadow: 0 5px 15px rgba(74, 108, 247, 0.2);
         }
 
-        /* Hero Section */
-        .hero {
-            padding: 180px 0 100px;
+        /* Dashboard Header */
+        .dashboard-header {
             position: relative;
-            overflow: hidden;
+            z-index: 10;
+            padding: 140px 0 60px;
+            text-align: center;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        .hero-content {
-            display: flex;
-            align-items: center;
-            gap: 80px;
-        }
-
-        .hero-text {
-            flex: 1;
+        .dashboard-header h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, #4a6cf7, #3a5ae0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+            letter-spacing: -0.5px;
+            animation: textReveal 1.2s forwards;
             opacity: 0;
             transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 0.3s;
         }
 
-        @keyframes fadeUp {
+        @keyframes textReveal {
             to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
-        .hero-image {
-            flex: 1;
-            display: flex;
-            justify-content: center;
+        .dashboard-header p {
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.7;
+            animation: fadeIn 1s 0.3s forwards;
             opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 0.5s;
         }
 
-        .hero h1 {
-            font-size: 3.2rem;
-            line-height: 1.2;
-            margin-bottom: 25px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            color: var(--text);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 0.4s;
+        @keyframes fadeIn {
+            to { opacity: 1; }
         }
 
-        .hero h1 span {
-            color: var(--primary);
-            position: relative;
-        }
-
-        .hero h1 span::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
             left: 0;
             width: 100%;
-            height: 3px;
-            background: var(--primary);
-            transform: scaleX(0);
-            transform-origin: left;
-            animation: underlineGrow 1.2s forwards 1s;
+            height: 100%;
+            background: rgba(15, 18, 22, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 1;
+            transition: opacity 0.8s ease;
         }
 
-        @keyframes underlineGrow {
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            text-align: center;
+        }
+
+        .spinner-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .spinner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 4px solid rgba(74, 108, 247, 0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .spinner-inner {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            width: 70px;
+            height: 70px;
+            border: 3px solid transparent;
+            border-top: 3px solid var(--primary-light);
+            border-radius: 50%;
+            animation: spinReverse 2.2s linear infinite;
+        }
+
+        .loading-text {
+            color: var(--text);
+            font-size: 1.3rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .countdown {
+            color: yellow; /* Force yellow color (or use --error if that's yellow) */
+            font-size: 1.1rem;
+            font-weight: 600;
+            display: inline; /* Ensure it stays on the same line */
+            margin-left: 4px; /* Small spacing instead of margin-top */
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes spinReverse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(-360deg); }
+        }
+
+        /* Servers Grid - Minimalist Card Design */
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 30px;
+            margin-bottom: 80px;
+        }
+
+        .server-card {
+            background: rgba(15, 18, 22, 0.95);
+            border-radius: var(--border-radius);
+            padding: 35px 30px;
+            transition: var(--transition);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(74, 108, 247, 0.15);
+            position: relative;
+            overflow: hidden;
+            transform: translateY(0);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            animation: cardAppear 0.8s forwards;
+            opacity: 0;
+            transform: translateY(30px);
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @keyframes cardAppear {
             to {
-                transform: scaleX(1);
+                opacity: 1;
+                transform: translateY(0);
             }
         }
 
-        .hero p {
+        .server-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+            border-color: rgba(74, 108, 247, 0.3);
+            background: rgba(20, 23, 27, 0.95);
+        }
+
+        .server-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--primary);
+            opacity: 0.3;
+            transition: var(--transition);
+            z-index: 2;
+        }
+
+        .server-card:hover::before {
+            opacity: 1;
+        }
+
+        .server-info {
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .server-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text);
+            transition: var(--transition);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .server-status {
+            display: flex;
+            align-items: center;
             font-size: 1.1rem;
-            color: var(--text-muted);
-            margin-bottom: 40px;
-            max-width: 560px;
-            line-height: 1.7;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 0.6s;
+            color: #4ade80;
+            font-weight: 500;
+            gap: 12px;
+            padding-top: 8px;
         }
 
         .status-indicator {
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 15px;
-            background: rgba(26, 29, 33, 0.5);
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 0.8s;
-        }
-
-        .status-shield {
-            color: var(--primary);
-            font-size: 16px;
-            position: relative;
-        }
-
-        .status-shield.online::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            right: -1px;
-            width: 8px;
-            height: 8px;
-            background: var(--success);
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            border: 2px solid var(--darker);
+            background: #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.7);
             animation: pulse 2s infinite;
         }
 
         @keyframes pulse {
             0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 0.8; }
             100% { transform: scale(1); opacity: 1; }
         }
 
-        .hero-buttons {
-            display: flex;
-            gap: 16px;
-            margin-top: 30px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 1s;
+        .card-footer {
+            margin-top: auto;
+            position: relative;
+            z-index: 3;
         }
 
-        .btn-secondary {
-            background: rgba(44, 47, 51, 0.3);
+        .manage-btn {
+            background: rgba(74, 108, 247, 0.15);
             color: var(--text);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(74, 108, 247, 0.3);
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: block;
+            width: 100%;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .manage-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .manage-btn:hover::after {
+            left: 100%;
+        }
+
+        .manage-btn:hover {
+            background: rgba(74, 108, 247, 0.25);
+            border-color: rgba(74, 108, 247, 0.5);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.2);
+        }
+
+        /* Updated "No Managed Servers" state */
+        .no-servers-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .blur-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 18, 22, 0.95);
+            backdrop-filter: blur(15px);
+            z-index: 1;
+        }
+
+        .no-servers-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            animation: fadeInUp 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .error-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .error-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 500px;
+            padding: 40px;
+            animation: fadeInUp 1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .no-servers-icon {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            display: inline-block;
+            color: #4a6cf7;
+            transition: var(--transition);
+            animation: pulse 2s infinite;
+        }
+
+        .error-icon {
+            font-size: 4.5rem;
+            margin-bottom: 25px;
+            display: inline-block;
+            color: #ff6b6b;
+            transition: var(--transition);
+            animation: pulse 2s infinite;
+        }
+
+        .no-servers-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .error-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .no-servers-description {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin: 0 auto 35px;
+            line-height: 1.7;
+            max-width: 400px;
+        }
+
+        .error-description {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin: 0 auto 35px;
+            line-height: 1.7;
+            max-width: 400px;
+        }
+
+        /* Floating server icons in the background */
+        .floating-server {
+            position: absolute;
+            opacity: 0.05;
+            color: var(--primary);
+            font-size: 4rem;
+            z-index: 0;
+            animation: float 20s infinite linear;
+        }
+
+        .floating-error {
+            position: absolute;
+            opacity: 0.05;
+            color: var(--error);
+            font-size: 4rem;
+            z-index: 0;
+            animation: float 20s infinite linear;
+        }
+
+        /* Error-specific button styles */
+        .error-content .error-button {
+            background: rgba(120, 120, 120, 0.15);
+            color: var(--text);
+            border: 1px solid rgba(120, 120, 120, 0.3);
             padding: 12px 26px;
             border-radius: var(--border-radius);
             font-weight: 600;
@@ -307,857 +572,439 @@
             display: inline-flex;
             align-items: center;
             gap: 10px;
+            margin-top: 15px;
         }
 
-        .btn-secondary:hover {
-            background: rgba(44, 47, 51, 0.5);
-            border-color: rgba(255, 255, 255, 0.2);
+        .error-content .error-button:hover {
+            background: rgba(120, 120, 120, 0.25);
+            border-color: rgba(120, 120, 120, 0.5);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-
-        .bot-avatar {
-            width: 340px;
-            height: 340px;
-            background: rgba(74, 108, 247, 0.1);
-            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(74, 108, 247, 0.2);
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            animation: morph 12s ease-in-out infinite, float 8s ease-in-out infinite;
-        }
-
-        @keyframes morph {
-            0% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
-            50% { border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%; }
-            100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; }
+            box-shadow: 0 5px 15px rgba(120, 120, 120, 0.2);
         }
 
         @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
-
-        .bot-avatar::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, 
-                        rgba(74, 108, 247, 0.1) 0%, 
-                        transparent 70%);
-            z-index: 0;
-            animation: rotate 20s linear infinite;
-        }
-
-        .bot-avatar i {
-            font-size: 120px;
-            color: var(--primary);
-            animation: pulseIcon 3s ease-in-out infinite;
-        }
-
-        @keyframes pulseIcon {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* Features Section */
-        .features {
-            padding: 100px 0;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 70px;
-        }
-
-        .section-title h2 {
-            font-size: 2.4rem;
-            margin-bottom: 20px;
-            position: relative;
-            display: inline-block;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 0.2s;
-        }
-
-        .section-title h2::after {
-            content: '';
-            position: absolute;
-            bottom: -12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 4px;
-            background: var(--primary);
-            border-radius: 4px;
-        }
-
-        .section-title p {
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 30px auto 0;
-            font-size: 1.1rem;
-            line-height: 1.7;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 0.4s;
-        }
-
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        .feature-card {
-            background: rgba(22, 25, 29, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: var(--border-radius);
-            padding: 35px 30px;
-            transition: var(--transition);
-            position: relative;
-            overflow: hidden;
-            backdrop-filter: blur(4px);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards;
-            animation-delay: calc(var(--delay) * 0.1s);
-        }
-
-        .feature-card:nth-child(1) { --delay: 1; }
-        .feature-card:nth-child(2) { --delay: 2; }
-        .feature-card:nth-child(3) { --delay: 3; }
-        .feature-card:nth-child(4) { --delay: 4; }
-        .feature-card:nth-child(5) { --delay: 5; }
-        .feature-card:nth-child(6) { --delay: 6; }
-
-        .feature-card:hover {
-            transform: translateY(-8px);
-            border-color: rgba(74, 108, 247, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-        }
-
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(74, 108, 247, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 25px;
-            font-size: 24px;
-            color: var(--primary);
-            transition: var(--transition);
-            border: 1px solid rgba(74, 108, 247, 0.2);
-        }
-
-        .feature-card:hover .feature-icon {
-            background: rgba(74, 108, 247, 0.2);
-            transform: translateY(-8px) rotate(5deg);
-            box-shadow: 0 10px 20px rgba(74, 108, 247, 0.2);
-        }
-
-        .feature-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 18px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .feature-card p {
-            color: var(--text-muted);
-            margin-bottom: 20px;
-            font-size: 1rem;
-            line-height: 1.7;
-        }
-
-        /* Stats Section */
-        .stats {
-            padding: 80px 0;
-            background: rgba(22, 25, 29, 0.5);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            text-align: center;
-        }
-
-        .stat-item {
-            padding: 25px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards;
-            animation-delay: calc(var(--delay) * 0.1s);
-        }
-
-        .stat-item:nth-child(1) { --delay: 1; }
-        .stat-item:nth-child(2) { --delay: 2; }
-        .stat-item:nth-child(3) { --delay: 3; }
-        .stat-item:nth-child(4) { --delay: 4; }
-
-        .stat-value {
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin-bottom: 12px;
-            font-family: 'Inter', sans-serif;
-            position: relative;
-            display: inline-block;
-            letter-spacing: -1px;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            font-size: 1.05rem;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        /* How It Works */
-        .how-it-works {
-            padding: 100px 0;
-            background: rgba(15, 18, 22, 0.5);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .steps {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 60px;
-            position: relative;
-        }
-
-        .step {
-            background: rgba(22, 25, 29, 0.5);
-            border-radius: var(--border-radius);
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            max-width: 300px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: var(--transition);
-            backdrop-filter: blur(4px);
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards;
-            animation-delay: calc(var(--delay) * 0.1s);
-        }
-
-        .step:nth-child(1) { --delay: 1; }
-        .step:nth-child(2) { --delay: 2; }
-        .step:nth-child(3) { --delay: 3; }
-
-        .step:hover {
-            transform: translateY(-8px);
-            border-color: rgba(74, 108, 247, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-        }
-
-        .step-number {
-            width: 60px;
-            height: 60px;
-            background: rgba(74, 108, 247, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: 700;
-            margin: 0 auto 25px;
-            transition: var(--transition);
-            color: var(--primary);
-            border: 1px solid rgba(74, 108, 247, 0.2);
-        }
-
-        .step:hover .step-number {
-            background: rgba(74, 108, 247, 0.2);
-            transform: translateY(-8px) rotate(5deg);
-            box-shadow: 0 10px 20px rgba(74, 108, 247, 0.2);
-        }
-
-        .step h3 {
-            font-size: 1.4rem;
-            margin-bottom: 18px;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .step p {
-            color: var(--text-muted);
-            font-size: 1rem;
-            line-height: 1.7;
-        }
-
-        /* CTA Section */
-        .cta-section {
-            padding: 120px 0;
-            background: linear-gradient(135deg, #0f1216 0%, #0a0c10 100%);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .cta-box {
-            background: rgba(22, 25, 29, 0.7);
-            border-radius: var(--border-radius);
-            padding: 70px 50px;
-            max-width: 800px;
-            margin: 0 auto;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            position: relative;
-            z-index: 1;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 0.2s;
-            backdrop-filter: blur(8px);
-        }
-
-        .cta-box h2 {
-            font-size: 2.4rem;
-            margin-bottom: 25px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .cta-box p {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            max-width: 600px;
-            margin: 0 auto 40px;
-            line-height: 1.7;
-        }
-
-        .cta-box .cta-button {
-            background: rgba(74, 108, 247, 0.2);
-            color: var(--text);
-            border: 1px solid rgba(74, 108, 247, 0.3);
-            padding: 14px 36px;
-            border-radius: var(--border-radius);
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
-            transition: var(--transition);
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .cta-box .cta-button::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: 0.6s;
-        }
-
-        .cta-box .cta-button:hover::after {
-            left: 100%;
-        }
-
-        .cta-box .cta-button:hover {
-            background: rgba(74, 108, 247, 0.3);
-            border-color: rgba(74, 108, 247, 0.5);
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(74, 108, 247, 0.2);
-        }
-
-        /* Footer */
-        footer {
-            background: rgba(15, 18, 22, 0.8);
-            padding: 80px 0 40px;
-            position: relative;
-            overflow: hidden;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 50px;
-            margin-bottom: 60px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .footer-column {
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards;
-            animation-delay: calc(var(--delay) * 0.1s);
-        }
-
-        .footer-column:nth-child(1) { --delay: 1; }
-        .footer-column:nth-child(2) { --delay: 2; }
-        .footer-column:nth-child(3) { --delay: 3; }
-        .footer-column:nth-child(4) { --delay: 4; }
-
-        .footer-column h3 {
-            font-size: 1.3rem;
-            margin-bottom: 25px;
-            position: relative;
-            display: inline-block;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .footer-column h3::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 40px;
-            height: 3px;
-            background: var(--primary);
-            border-radius: 3px;
-        }
-
-        .footer-column p {
-            color: var(--text-muted);
-            margin-bottom: 25px;
-            line-height: 1.7;
-            max-width: 320px;
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 14px;
-        }
-
-        .footer-links a {
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: var(--transition);
-            display: inline-block;
-            font-size: 1rem;
-        }
-
-        .footer-links a:hover {
-            color: var(--text);
-            transform: translateX(8px);
-        }
-
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 25px;
-        }
-
-        .social-links a {
-            width: 44px;
-            height: 44px;
-            border-radius: 10px;
-            background: rgba(26, 29, 33, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text);
-            transition: var(--transition);
-            text-decoration: none;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .social-links a:hover {
-            background: rgba(74, 108, 247, 0.2);
-            transform: translateY(-5px);
-            border-color: rgba(74, 108, 247, 0.3);
-            box-shadow: 0 5px 15px rgba(74, 108, 247, 0.2);
-        }
-
-        .copyright {
-            text-align: center;
-            padding-top: 40px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            color: var(--text-muted);
-            font-size: 0.95rem;
-            position: relative;
-            z-index: 1;
-            line-height: 1.7;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeUp 0.8s forwards 0.4s;
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(50px, -30px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 50px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-50px, 0) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
         }
 
         /* Responsive */
         @media (max-width: 1100px) {
-            .hero-content {
-                flex-direction: column;
-                text-align: center;
-                gap: 60px;
-            }
-            
-            .hero-text {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .hero p {
-                max-width: 100%;
-            }
-            
-            .steps {
-                flex-direction: column;
-                align-items: center;
-                gap: 30px;
+            .servers-grid {
+                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             }
         }
 
         @media (max-width: 768px) {
+            .dashboard-header {
+                padding: 120px 0 40px;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 2.6rem;
+            }
+            
+            .dashboard-header p {
+                font-size: 1.1rem;
+            }
+            
+            .server-name {
+                font-size: 1.6rem;
+            }
+            
+            .no-servers-title {
+                font-size: 1.6rem;
+            }
+            
+            .no-servers-description {
+                font-size: 1rem;
+            }
+
+            .error-title {
+                font-size: 1.6rem;
+            }
+            
+            .error-description {
+                font-size: 1rem;
+            }
+
             .nav-links {
                 display: none;
-            }
-            
-            .hero h1 {
-                font-size: 2.4rem;
-            }
-            
-            .hero-buttons {
-                flex-direction: column;
-            }
-            
-            .section-title h2 {
-                font-size: 2rem;
-            }
-            
-            .cta-box h2 {
-                font-size: 2rem;
-            }
-            
-            .bot-avatar {
-                width: 280px;
-                height: 280px;
             }
         }
 
         @media (max-width: 480px) {
-            .hero h1 {
-                font-size: 2rem;
+            .servers-grid {
+                grid-template-columns: 1fr;
             }
             
-            .hero p {
-                font-size: 1rem;
+            .dashboard-header h1 {
+                font-size: 2.2rem;
             }
             
-            .cta-box {
-                padding: 50px 25px;
+            .container {
+                padding: 0 15px 50px;
             }
             
-            .feature-card, .stat-item, .step {
-                max-width: 100%;
+            .server-card {
+                padding: 30px 20px;
+            }
+            
+            .no-servers-content {
+                padding: 30px 20px;
+            }
+            
+            .error-content {
+                padding: 30px 20px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container">
-            <nav class="navbar">
-                <a href="#" class="logo">
-                    <div class="logo-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    Sentinel
-                </a>
-                
-                <div class="nav-links">
-                     <a href="index.html" class="active">Home</a>
-                     <a href="d.html">Support</a>
-                     <a href="dashboard/index.html">Dashboard</a>
-                </div>
-                
-                <a href="#cta" class="cta-button">
-                    <i class="fab fa-discord"></i> Add to Discord
-                </a>
-            </nav>
-        </div>
-    </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1>Advanced Security for Your <span>Discord Community</span></h1>
-                    <p>Sentinel protects your server from raids, spam, scams, and malicious users with AI-powered moderation and real-time threat detection.</p>
-                    
-                    <div class="status-indicator">
-                        <span class="status-shield online">
-                            <i class="fas fa-shield-alt"></i>
-                        </span>
-                        <span>Operational - Securing 50,000+ servers</span>
-                    </div>
-                    
-                    <div class="hero-buttons">
-                        <a href="#cta" class="cta-button">
-                            <i class="fab fa-discord"></i> Add to Discord
-                        </a>
-                        <a href="#features" class="btn-secondary">
-                            <i class="fas fa-star"></i> Explore Features
-                        </a>
-                    </div>
-                </div>
-                
-                <div class="hero-image">
-                    <div class="bot-avatar">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                </div>
+    <!-- Main Content -->
+    <div class="container">
+        <div id="main-content">
+            <div class="dashboard-header">
+                <h1>Your Servers</h1>
+                <p>Manage all your protected Discord communities with Sentinel's advanced security features</p>
+            </div>
+            <div id="owned-servers" class="servers-grid">
+                <!-- Server cards will be loaded here by JavaScript -->
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Features Section -->
-    <section class="features" id="features">
-        <div class="container">
-            <div class="section-title">
-                <h2>Powerful Security Features</h2>
-                <p>Sentinel offers comprehensive protection for your Discord community with cutting-edge security features</p>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay">
+        <div class="loading-content">
+            <div class="spinner-container">
+                <div class="spinner"></div>
+                <div class="spinner-inner"></div>
             </div>
-            
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-robot"></i>
-                    </div>
-                    <h3>AI Threat Detection</h3>
-                    <p>Advanced AI analyzes messages in real-time to detect and block malicious content, scams, and phishing attempts.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-user-shield"></i>
-                    </div>
-                    <h3>Raid Protection</h3>
-                    <p>Automatically detects and prevents server raids with intelligent join monitoring and account verification.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-ban"></i>
-                    </div>
-                    <h3>Auto Moderation</h3>
-                    <p>Customizable filters for spam, profanity, and inappropriate content with automatic warnings and punishments.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-link"></i>
-                    </div>
-                    <h3>Malicious Link Blocking</h3>
-                    <p>Real-time scanning and blocking of harmful links to protect your community from scams and malware.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-history"></i>
-                    </div>
-                    <h3>Comprehensive Logging</h3>
-                    <p>Detailed audit logs of all security events with searchable history and export functionality.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3>Dashboard Control</h3>
-                    <p>Beautiful web dashboard to configure settings, view statistics, and manage your server's security.</p>
-                </div>
-            </div>
+            <p class="loading-text">
+                Finding your servers..
+                <span id="countdown" class="countdown"></span>
+            </p>
         </div>
-    </section>
+    </div>
 
-    <!-- Stats Section -->
-    <section class="stats" id="stats">
-        <div class="container">
-            <div class="stats-container">
-                <div class="stat-item">
-                    <div class="stat-value">50,000+</div>
-                    <div class="stat-label">Protected Servers</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-value">99.9%</div>
-                    <div class="stat-label">Uptime</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-value">1.2M</div>
-                    <div class="stat-label">Bans Prevented</div>
-                </div>
-                
-                <div class="stat-item">
-                    <div class="stat-value">98%</div>
-                    <div class="stat-label">User Satisfaction</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works -->
-    <section class="how-it-works" id="how-it-works">
-        <div class="container">
-            <div class="section-title">
-                <h2>Simple Integration</h2>
-                <p>Get Sentinel up and running on your server in just a few minutes</p>
-            </div>
-            
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Add to Server</h3>
-                    <p>Invite Sentinel to your Discord server with one click using our secure authorization.</p>
-                </div>
-                
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Configure Settings</h3>
-                    <p>Customize security levels, moderation rules, and notifications through our dashboard.</p>
-                </div>
-                
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Stay Protected</h3>
-                    <p>Sentinel works 24/7 to protect your community from threats and malicious activity.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="cta-section" id="cta">
-        <div class="container">
-            <div class="cta-box">
-                <h2>Ready to Secure Your Server?</h2>
-                <p>Join thousands of communities that trust Sentinel to keep their members safe from raids, scams, and malicious users.</p>
-                <a href="https://discord.com/oauth2/authorize?client_id=1376737212493987970&permissions=8&integration_type=0&scope=bot" class="cta-button">
-                    <i class="fab fa-discord"></i> Add to Discord Now
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>Sentinel Security</h3>
-                    <p>Advanced moderation and security solutions for Discord communities.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-discord"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-github"></i></a>
-                    </div>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Features</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Auto Moderation</a></li>
-                        <li><a href="#">User Verification</a></li>
-                        <li><a href="#">Security Logging</a></li>
-                        <li><a href="#">Custom Filters</a></li>
-                        <li><a href="#">Role Management</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Resources</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Documentation</a></li>
-                        <li><a href="https://discord.com/oauth2/authorize?client_id=1376737212493987970&permissions=8&integration_type=0&scope=bot">Add Sentinel</a></li>
-                        <li><a href="#">Support Server</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-column">
-                    <h3>Legal</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="copyright">
-                &copy; 2025 Sentinel Security Bot. All rights reserved. Discord is a trademark of Discord Inc.<br>
-                Made with <i class="fas fa-heart"></i> for Discord communities
-            </div>
-        </div>
-    </footer>
-
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
-        // Header scroll effect
-        window.addEventListener('scroll', () => {
-            const header = document.querySelector('header');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
+        // Initialize Supabase client
+        window.supabase = supabase.createClient(
+            'https://doptbjwopxncfqadbwie.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRvcHRiandvcHhuY2ZxYWRid2llIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwNTk2MDcsImV4cCI6MjA2NjYzNTYwN30.bAa2UFhRYYWkCpZ84Fl2_sZiN2PKkL5m4GxnFkGeCBk',
+            {
+                auth: {
+                    flowType: 'pkce',
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true
+                }
             }
-        });
-        
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
+        );
+
+        // Auth functions
+        async function checkAuth() {
+            if (!window.supabase) {
+                console.error('Supabase client not initialized');
+                return;
+            }
+
+            try {
+                const { data: { session }, error } = await window.supabase.auth.getSession();
                 
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    window.scrollTo({
-                        top: target.offsetTop - 80,
-                        behavior: 'smooth'
+                if (session) {
+                    await showDashboard(session.user);
+                } else {
+                    window.location.href = 'auth.html';
+                }
+            } catch (error) {
+                console.error('Auth check failed:', error);
+                window.location.href = 'auth.html';
+            }
+        }
+
+        async function showDashboard(user) {
+            try {
+                // Now fetch and display owned servers
+                await displayOwnedServers(user);
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showErrorState(error.message || 'Failed to load dashboard');
+            }
+        }
+
+        async function fetchDiscordGuilds() {
+            try {
+                // Get the user's Discord access token from Supabase
+                const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+                if (sessionError) throw sessionError;
+                
+                if (!session?.provider_token) {
+                    throw new Error('No Discord access token found');
+                }
+
+                // Fetch user's guilds from Discord API
+                const response = await fetch('https://discord.com/api/users/@me/guilds', {
+                    headers: {
+                        'Authorization': `Bearer ${session.provider_token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 429) {
+                        throw new Error('429');
+                    }
+                    throw new Error(`Discord API error: ${response.status}`);
+                }
+
+                return { data: await response.json(), error: null };
+            } catch (error) {
+                return { data: null, error };
+            }
+        }
+
+        async function logout() {
+            try {
+                const { error } = await supabase.auth.signOut();
+                if (error) throw error;
+                window.location.href = 'auth.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+                window.location.href = 'auth.html';
+            }
+        }
+
+        function showErrorState(errorMessage) {
+            const serversContainer = document.getElementById('owned-servers');
+            const loadingOverlay = document.querySelector('.loading-overlay');
+            
+            // Hide loading overlay
+            if (loadingOverlay) {
+                loadingOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    loadingOverlay.style.display = 'none';
+                }, 800);
+            }
+            
+            // Show error state
+            serversContainer.innerHTML = `
+                <div class="error-container">
+                    <div class="blur-overlay"></div>
+                    <div class="error-content">
+                        <i class="fas fa-exclamation-triangle error-icon"></i>
+                        <h3 class="error-title">Error Loading Servers</h3>
+                        <p class="error-description">
+                            Please log out and sign in again using the button below.
+                        </p>
+                        <button class="error-button" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Log Out & Re-Authenticate
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add floating error icons
+            const floatingIcons = ['<i class="fas fa-exclamation-triangle"></i>', '<i class="fas fa-bug"></i>', 
+                                  '<i class="fas fa-times-circle"></i>', '<i class="fas fa-wifi-slash"></i>'];
+            
+            floatingIcons.forEach((icon, index) => {
+                const floatingError = document.createElement('div');
+                floatingError.className = 'floating-error';
+                floatingError.style.top = `${15 + index * 10}%`;
+                floatingError.style.left = `${10 + index * 5}%`;
+                floatingError.style.animationDelay = `${index * 1.5}s`;
+                floatingError.innerHTML = icon;
+                document.body.appendChild(floatingError);
+            });
+        }
+
+        async function displayOwnedServers(user) {
+            const serversContainer = document.getElementById('owned-servers');
+            const loadingOverlay = document.querySelector('.loading-overlay');
+            const loadingText = document.querySelector('.loading-text');
+            const countdownElement = document.getElementById('countdown');
+            
+            try {
+                // Show loading overlay if it exists
+                if (loadingOverlay) {
+                    loadingOverlay.style.display = 'flex';
+                    loadingOverlay.style.opacity = '1';
+                    loadingText.textContent = 'Finding your servers..';
+                    countdownElement.textContent = '';
+                }
+                
+                // 1. Get user's guilds from Discord API
+                const { data: userGuilds, error: discordError } = await fetchDiscordGuilds();
+                
+                // Handle 429 rate limit error
+                if (discordError && discordError.message === '429') {
+                    // Replace the entire loading text with new message
+                    loadingText.innerHTML = 'Limit reached trying again in <span id="countdown" class="countdown">10s</span>';
+                    
+                    let seconds = 10;
+                    const countdownElement = document.getElementById('countdown');
+                    
+                    const countdown = setInterval(() => {
+                        countdownElement.textContent = `${seconds}s`;
+                        seconds--;
+                        
+                        if (seconds < 0) {
+                            clearInterval(countdown);
+                            displayOwnedServers(user);
+                        }
+                    }, 1000);
+                    
+                    return;
+                }
+                
+                if (discordError) throw discordError;
+
+                // 2. Get bot's guilds from Supabase
+                const { data: botGuilds, error: supabaseError } = await supabase
+                    .from('bot_guilds')
+                    .select('guild_id');
+                
+                if (supabaseError) throw supabaseError;
+
+                // 3. Filter servers (user must be admin/owner and bot must be in server)
+                const botGuildIds = new Set(botGuilds.map(g => g.guild_id));
+                
+                const validServers = userGuilds.filter(guild => {
+                    const hasAdmin = guild.owner || (BigInt(guild.permissions) & BigInt(0x8));
+                    return hasAdmin && botGuildIds.has(guild.id);
+                });
+
+                // Hide loading overlay
+                if (loadingOverlay) {
+                    loadingOverlay.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                    }, 800);
+                }
+
+                // 4. Render results
+                if (validServers.length === 0) {
+                    serversContainer.innerHTML = `
+                        <div class="no-servers-container">
+                            <div class="blur-overlay"></div>
+                            <div class="no-servers-content">
+                                <i class="fas fa-server no-servers-icon"></i>
+                                <h3 class="no-servers-title">No Managed Servers</h3>
+                                <p class="no-servers-description">
+                                    Sentinel isn't currently managing any servers where you have administrator permissions. Add the bot and then refresh this page.
+                                </p>
+                                <a href="https://discord.com/oauth2/authorize?client_id=1376737212493987970&permissions=8&integration_type=0&scope=bot" 
+                                    class="cta-button" 
+                                    target="_blank">
+                                    <i class="fab fa-discord"></i> Add to Discord
+                                </a>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add floating server icons
+                    const floatingIcons = ['<i class="fas fa-server"></i>', '<i class="fas fa-database"></i>', 
+                                          '<i class="fas fa-cloud"></i>', '<i class="fas fa-shield-alt"></i>'];
+                    
+                    floatingIcons.forEach((icon, index) => {
+                        const floatingServer = document.createElement('div');
+                        floatingServer.className = 'floating-server';
+                        floatingServer.style.top = `${15 + index * 10}%`;
+                        floatingServer.style.left = `${10 + index * 5}%`;
+                        floatingServer.style.animationDelay = `${index * 1.5}s`;
+                        floatingServer.innerHTML = icon;
+                        document.body.appendChild(floatingServer);
                     });
+                    
+                    return;
+                }
+
+                // Render server cards with staggered animations
+                serversContainer.innerHTML = validServers.map((guild, index) => {
+                    const delay = index * 0.1;
+                    return `
+                        <div class="server-card" data-guild-id="${guild.id}" 
+                            style="animation-delay: ${delay}s">
+                            <div class="server-info">
+                                <div class="server-name">${guild.name}</div>
+                                <div class="server-status">
+                                    <span class="status-indicator"></span>
+                                    <span>Online & Secured</span>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button class="manage-btn">Manage Server</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Add event listeners to server cards
+                document.querySelectorAll('.server-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const guildId = card.getAttribute('data-guild-id');
+                        alert(`Navigating to server management for: ${guildId}`);
+                        // In a real app, you would navigate to the server management page
+                    });
+                });
+
+            } catch (error) {
+                console.error('Server load failed:', error);
+                showErrorState(error.message || 'Failed to fetch server data');
+            }
+        }
+
+        // Check auth status and redirect if needed
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Header scroll effect
+            window.addEventListener('scroll', () => {
+                const header = document.querySelector('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
                 }
             });
-        });
-        
-        // Animation on scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.animationPlayState = 'running';
-                    observer.unobserve(entry.target);
+            
+            // Show loading overlay initially
+            document.querySelector('.loading-overlay').style.display = 'flex';
+            document.querySelector('.loading-overlay').style.opacity = '1';
+            
+            // Check for OAuth callback
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('code')) {
+                // This is the OAuth callback
+                try {
+                    const { data: { session }, error } = await window.supabase.auth.getSession();
+                    
+                    if (session) {
+                        window.history.replaceState({}, '', window.location.pathname);
+                        await showDashboard(session.user);
+                    } else {
+                        window.location.href = 'auth.html';
+                    }
+                } catch (error) {
+                    console.error('OAuth failed:', error);
+                    window.location.href = 'auth.html';
                 }
-            });
-        }, { threshold: 0.1 });
-        
-        document.querySelectorAll('.feature-card, .stat-item, .step, .footer-column').forEach(el => {
-            el.style.animationPlayState = 'paused';
-            observer.observe(el);
+            } else {
+                // Regular auth check
+                await checkAuth();
+            }
         });
     </script>
 </body>
