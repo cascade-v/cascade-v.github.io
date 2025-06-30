@@ -39,133 +39,10 @@
             min-height: 100vh;
         }
 
-        /* Side Panel Styles */
-        .side-panel {
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            width: 250px;
-            background: var(--darker);
-            border-right: 1px solid var(--glass-border);
-            transition: var(--transition);
-            z-index: 900;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px;
-            border-bottom: 1px solid var(--glass-border);
-        }
-
-        .panel-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: var(--text);
-        }
-
-        .panel-logo i {
-            color: var(--primary);
-            font-size: 1.4rem;
-        }
-
-        .panel-toggle {
-            background: transparent;
-            border: none;
-            color: var(--text-muted);
-            cursor: pointer;
-            font-size: 1rem;
-            transition: var(--transition);
-            padding: 5px;
-            border-radius: 5px;
-        }
-
-        .panel-toggle:hover {
-            color: var(--text);
-            background: rgba(255,255,255,0.05);
-        }
-
-        .panel-nav {
-            flex: 1;
-            padding: 20px 0;
-            overflow-y: auto;
-        }
-
-        .nav-section {
-            margin-bottom: 25px;
-        }
-
-        .nav-title {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding: 0 20px 10px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            color: var(--text-muted);
-            text-decoration: none;
-            transition: var(--transition);
-            border-left: 3px solid transparent;
-        }
-
-        .nav-item i {
-            width: 20px;
-            text-align: center;
-        }
-
-        .nav-item:hover {
-            background: rgba(255,255,255,0.03);
-            color: var(--text);
-        }
-
-        .nav-item.active {
-            background: rgba(74, 108, 247, 0.1);
-            color: var(--text);
-            border-left-color: var(--primary);
-        }
-
-        /* Collapsed state */
-        .side-panel.collapsed {
-            width: 70px;
-        }
-
-        .side-panel.collapsed .panel-logo span,
-        .side-panel.collapsed .nav-title,
-        .side-panel.collapsed .nav-item span {
-            display: none;
-        }
-
-        .side-panel.collapsed .panel-toggle i {
-            transform: rotate(180deg);
-        }
-
-        .side-panel.collapsed .nav-item {
-            justify-content: center;
-            padding: 12px 0;
-        }
-
         .container {
             max-width: 1200px;
-            margin: 0 auto 0 250px;
+            margin: 0 auto;
             padding: 0 20px;
-            transition: var(--transition);
-        }
-
-        .side-panel.collapsed ~ .container {
-            margin-left: 70px;
         }
 
         /* Header */
@@ -178,13 +55,6 @@
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
             transition: var(--transition);
             transform: translateY(0);
-            left: 250px;
-            width: calc(100% - 250px);
-        }
-
-        .side-panel.collapsed ~ header {
-            left: 70px;
-            width: calc(100% - 70px);
         }
 
         .scrolled {
@@ -197,16 +67,6 @@
             align-items: center;
             padding: 20px 0;
             transition: var(--transition);
-        }
-
-        .mobile-menu-btn {
-            display: none;
-            background: transparent;
-            border: none;
-            color: var(--text);
-            font-size: 1.2rem;
-            cursor: pointer;
-            margin-right: 15px;
         }
 
         .logo {
@@ -399,11 +259,11 @@
         }
 
         .countdown {
-            color: yellow;
+            color: yellow; /* Force yellow color (or use --error if that's yellow) */
             font-size: 1.1rem;
             font-weight: 600;
-            display: inline;
-            margin-left: 4px;
+            display: inline; /* Ensure it stays on the same line */
+            margin-left: 4px; /* Small spacing instead of margin-top */
         }
 
         @keyframes spin {
@@ -748,27 +608,6 @@
         }
 
         @media (max-width: 768px) {
-            .side-panel {
-                transform: translateX(-100%);
-            }
-            
-            .side-panel.open {
-                transform: translateX(0);
-            }
-            
-            .container {
-                margin-left: 0;
-            }
-            
-            header {
-                left: 0 !important;
-                width: 100% !important;
-            }
-            
-            .mobile-menu-btn {
-                display: block;
-            }
-            
             .dashboard-header {
                 padding: 120px 0 40px;
             }
@@ -834,42 +673,6 @@
     </style>
 </head>
 <body>
-    <!-- Side Panel -->
-    <div class="side-panel">
-        <div class="panel-header">
-            <div class="panel-logo">
-                <i class="fas fa-shield-alt"></i>
-                <span>Sentinel</span>
-            </div>
-            <button class="panel-toggle">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-        </div>
-        <nav class="panel-nav">
-            <div class="nav-section">
-                <div class="nav-title">Management</div>
-                <a href="#" class="nav-item active">
-                    <i class="fas fa-server"></i>
-                    <span>Servers</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-user-shield"></i>
-                    <span>Moderation</span>
-                </a>
-            </div>
-            <div class="nav-section">
-                <div class="nav-title">Settings</div>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-cog"></i>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#" class="nav-item">
-                    <i class="fas fa-user-cog"></i>
-                    <span>Account</span>
-                </a>
-            </div>
-        </nav>
-    </div>
 
     <!-- Main Content -->
     <div class="container">
@@ -985,27 +788,6 @@
             }
         }
 
-        async function logAuditAction(guildId, action, metadata = {}) {
-            try {
-                const { data: { user }, error } = await supabase.auth.getUser();
-                if (error) throw error;
-                
-                const { data, error: insertError } = await supabase
-                    .from('audit_logs')
-                    .insert({
-                        user_id: user.id,
-                        guild_id: guildId,
-                        action: action,
-                        metadata: metadata
-                    });
-                
-                if (insertError) throw insertError;
-                return data;
-            } catch (error) {
-                console.error('Error logging audit action:', error);
-            }
-        }
-
         function showErrorState(errorMessage) {
             const serversContainer = document.getElementById('owned-servers');
             const loadingOverlay = document.querySelector('.loading-overlay');
@@ -1106,11 +888,6 @@
                     return hasAdmin && botGuildIds.has(guild.id);
                 });
 
-                // Log dashboard access
-                await logAuditAction(null, 'dashboard_access', {
-                    server_count: validServers.length
-                });
-
                 // Hide loading overlay
                 if (loadingOverlay) {
                     loadingOverlay.style.opacity = '0';
@@ -1178,41 +955,10 @@
 
                 // Add event listeners to server cards
                 document.querySelectorAll('.server-card').forEach(card => {
-                    card.addEventListener('click', async () => {
+                    card.addEventListener('click', () => {
                         const guildId = card.getAttribute('data-guild-id');
-                        
-                        // Log server access attempt
-                        await logAuditAction(guildId, 'server_access_attempt');
-                        
-                        // Verify permissions before proceeding
-                        try {
-                            const { data: { session }, error } = await supabase.auth.getSession();
-                            if (error) throw error;
-                            
-                            // Verify the user still has permissions for this guild
-                            const { data: validGuilds, error: guildError } = await supabase
-                                .from('user_guilds')
-                                .select('guild_id')
-                                .eq('user_id', session.user.id)
-                                .eq('guild_id', guildId);
-                            
-                            if (guildError || !validGuilds.length) {
-                                throw new Error('No permissions for this server');
-                            }
-                            
-                            // Log successful access
-                            await logAuditAction(guildId, 'server_access_success');
-                            
-                            // In a real app, you would navigate to the server management page
-                            alert(`Navigating to server management for: ${guildId}`);
-                            
-                        } catch (error) {
-                            console.error('Error accessing server:', error);
-                            await logAuditAction(guildId, 'server_access_denied', {
-                                error: error.message
-                            });
-                            alert('You no longer have permissions to manage this server');
-                        }
+                        alert(`Navigating to server management for: ${guildId}`);
+                        // In a real app, you would navigate to the server management page
                     });
                 });
 
@@ -1224,80 +970,42 @@
 
         // Check auth status and redirect if needed
         document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // 1. First verify all required elements exist
-        const panel = document.querySelector('.side-panel');
-        const toggleBtn = document.querySelector('.panel-toggle');
-        const navbar = document.querySelector('.navbar');
-        const loadingOverlay = document.querySelector('.loading-overlay');
-
-        if (!panel || !toggleBtn || !navbar || !loadingOverlay) {
-            throw new Error('Critical UI elements missing');
-        }
-
-        // 2. Add mobile menu button safely
-        const mobileMenuBtn = document.createElement('button');
-        mobileMenuBtn.className = 'mobile-menu-btn';
-        mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-        navbar.insertBefore(mobileMenuBtn, navbar.firstChild);
-
-        // 3. Panel toggle functionality
-        toggleBtn.addEventListener('click', () => {
-            panel.classList.toggle('collapsed');
-            localStorage.setItem('panelCollapsed', panel.classList.contains('collapsed'));
-        });
-
-        // 4. Mobile menu toggle
-        mobileMenuBtn.addEventListener('click', () => {
-            panel.classList.toggle('open');
-        });
-
-        // 5. Close panel when clicking outside on mobile
-        document.addEventListener('click', (e) => {
-            if (window.innerWidth <= 768 && 
-                !e.target.closest('.side-panel') && 
-                e.target !== mobileMenuBtn) {
-                panel.classList.remove('open');
-            }
-        });
-
-        // 6. Load saved panel state
-        if (localStorage.getItem('panelCollapsed') === 'true') {
-            panel.classList.add('collapsed');
-        }
-
-        // 7. Header scroll effect
-        const header = document.querySelector('header');
-        if (header) {
+            // Header scroll effect
             window.addEventListener('scroll', () => {
-                header.classList.toggle('scrolled', window.scrollY > 50);
+                const header = document.querySelector('header');
+                if (window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
             });
-        }
-
-        // 8. Show loading overlay initially
-        loadingOverlay.style.display = 'flex';
-        loadingOverlay.style.opacity = '1';
-
-        // 9. Check auth and load content
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('code')) {
-            // OAuth callback handling
-            const { data: { session }, error } = await supabase.auth.getSession();
-            if (session) {
-                window.history.replaceState({}, '', window.location.pathname);
-                await showDashboard(session.user);
+            
+            // Show loading overlay initially
+            document.querySelector('.loading-overlay').style.display = 'flex';
+            document.querySelector('.loading-overlay').style.opacity = '1';
+            
+            // Check for OAuth callback
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('code')) {
+                // This is the OAuth callback
+                try {
+                    const { data: { session }, error } = await window.supabase.auth.getSession();
+                    
+                    if (session) {
+                        window.history.replaceState({}, '', window.location.pathname);
+                        await showDashboard(session.user);
+                    } else {
+                        window.location.href = 'auth.html';
+                    }
+                } catch (error) {
+                    console.error('OAuth failed:', error);
+                    window.location.href = 'auth.html';
+                }
             } else {
-                window.location.href = 'auth.html';
+                // Regular auth check
+                await checkAuth();
             }
-        } else {
-            await checkAuth();
-        }
-
-    } catch (error) {
-        console.error('Initialization error:', error);
-        showErrorState('Failed to initialize dashboard');
-    }
-});
+        });
     </script>
 </body>
 </html>
